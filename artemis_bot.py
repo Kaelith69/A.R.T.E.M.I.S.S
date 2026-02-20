@@ -8,6 +8,7 @@ from typing import Union, Tuple
 
 import cv2
 import torch
+from dotenv import load_dotenv
 from PIL import Image
 from telegram import Update
 from telegram.constants import ChatAction
@@ -19,31 +20,43 @@ from telegram.ext import (
     ContextTypes,
 )
 from transformers import pipeline, AutoModelForImageClassification, ViTImageProcessor
-import telegram.error  # Add this import
+import telegram.error
+
+# Load environment variables from .env file (if present).
+load_dotenv()
 
 # -------------------------------
 # Configuration and Initialization
 # -------------------------------
 
-# Replace with your actual admin Telegram user IDs.
-ADMIN_IDS = {1272767655}  # Example: {123456789, 987654321}
+# Admin Telegram user IDs loaded from environment variable.
+# Set ADMIN_IDS as a comma-separated list, e.g. "123456789,987654321"
+_admin_ids_env = os.environ.get("ADMIN_IDS", "")
+ADMIN_IDS: set[int] = {int(uid.strip()) for uid in _admin_ids_env.split(",") if uid.strip().isdigit()}
+if not ADMIN_IDS:
+    import warnings
+    warnings.warn(
+        "ADMIN_IDS environment variable is empty or not set. "
+        "No admin will receive NSFW notifications.",
+        stacklevel=1,
+    )
 
-# Bot token (hardcoded for now; consider using environment variables for production)
-BOT_TOKEN = "7550587852:AAGImN1la_a592TzoKV5d5js6rlUPp1ozjM"
+# Bot token loaded from environment variable.
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN environment variable is not set. Aborting.")
 
 # SQLite database file for persisting violation counts.
-DB_FILE = "violations.db"
+DB_FILE = os.environ.get("DB_FILE", "violations.db")
 
 # Directory for caching flagged images and videos.
-FLAGGED_IMAGES_DIR = "flagged_images"
-FLAGGED_VIDEOS_DIR = "flagged_videos"
-if not os.path.exists(FLAGGED_IMAGES_DIR):
-    os.makedirs(FLAGGED_IMAGES_DIR)
-if not os.path.exists(FLAGGED_VIDEOS_DIR):
-    os.makedirs(FLAGGED_VIDEOS_DIR)
+FLAGGED_IMAGES_DIR = os.environ.get("FLAGGED_IMAGES_DIR", "flagged_images")
+FLAGGED_VIDEOS_DIR = os.environ.get("FLAGGED_VIDEOS_DIR", "flagged_videos")
+os.makedirs(FLAGGED_IMAGES_DIR, exist_ok=True)
+os.makedirs(FLAGGED_VIDEOS_DIR, exist_ok=True)
 
 # Violation threshold before banning a user.
-FLAG_THRESHOLD = 3
+FLAG_THRESHOLD = int(os.environ.get("FLAG_THRESHOLD", "3"))
 
 # Set up logging.
 logging.basicConfig(
@@ -53,27 +66,30 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Select device: use GPU if available, otherwise fall back to CPU.
+_device = 0 if torch.cuda.is_available() else -1
+
 # Initialize the NSFW detection pipeline for image analysis using the Falcon AI model.
 try:
     nsfw_detector = pipeline(
         "image-classification",
         model="Falconsai/nsfw_image_detection",
-        device=0,
-        use_fast=True
+        device=_device,
+        use_fast=True,
     )
 except Exception as e:
-    logger.error("Error loading NSFW detection model (image pipeline): " + str(e))
-    raise e
+    logger.error("Error loading NSFW detection model (image pipeline): %s", e)
+    raise
 
 # -------------------------------
 # Video Analysis Class using Falcon AI
+# (Module-level singleton — loaded once, reused for every message)
 # -------------------------------
 class VideoContentAnalyzer:
     def __init__(self, model_name: str = "Falconsai/nsfw_image_detection"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = AutoModelForImageClassification.from_pretrained(model_name).to(self.device)
         self.processor = ViTImageProcessor.from_pretrained(model_name)
-        logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.logger.info("VideoContentAnalyzer initialized using model: %s", model_name)
 
@@ -140,13 +156,27 @@ class VideoContentAnalyzer:
                     results['nsfw_detected'] = True
                     results['first_nsfw_frame'] = frame_result
                     self.logger.warning(
-                        f"NSFW content detected in frame {i+1} with {conf:.2%} confidence. Stopping analysis."
+                        f"NSFW content detected in frame {i+1} with {conf:.2%} confidence."
                     )
-                    break
+                    if stop_on_nsfw:
+                        self.logger.warning("Stopping analysis early due to NSFW detection.")
+                        break
             return results
 
         finally:
             cap.release()
+
+
+# Module-level singleton: load the model once and reuse for all incoming video messages.
+_video_analyzer: VideoContentAnalyzer | None = None
+
+
+def get_video_analyzer() -> VideoContentAnalyzer:
+    """Returns the shared VideoContentAnalyzer instance, creating it on first call."""
+    global _video_analyzer
+    if _video_analyzer is None:
+        _video_analyzer = VideoContentAnalyzer()
+    return _video_analyzer
 
 # -------------------------------
 # Database Functions
@@ -174,6 +204,13 @@ def init_db():
             user_id INTEGER,
             action TEXT,
             timestamp TEXT
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS contents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT,
+            is_nsfw INTEGER
         )
     ''')
     conn.commit()
@@ -257,6 +294,18 @@ def get_all_stats() -> dict:
     rows = c.fetchall()
     conn.close()
     return {row[0]: row[1] for row in rows}
+
+
+def log_content(content_type: str, is_nsfw: bool):
+    """Records a scanned content item in the contents table."""
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute(
+        "INSERT INTO contents (type, is_nsfw) VALUES (?, ?)",
+        (content_type, 1 if is_nsfw else 0),
+    )
+    conn.commit()
+    conn.close()
 
 # -------------------------------
 # Bot Command Handlers
@@ -389,9 +438,11 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         if update.message.video:
             file = await update.message.video.get_file()
             temp_path = f"temp_{user_id}.mp4"
+            media_ext = ".mp4"
         elif update.message.animation:  # GIFs are sent as animations
             file = await update.message.animation.get_file()
             temp_path = f"temp_{user_id}.gif"
+            media_ext = ".gif"
         else:
             await update.message.reply_text("⚠️ Unsupported media type.")
             return
@@ -399,7 +450,7 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await file.download_to_drive(custom_path=temp_path)
         logger.info(f"Media downloaded to {temp_path}")
 
-        analyzer = VideoContentAnalyzer()
+        analyzer = get_video_analyzer()
         results = analyzer.analyze_video(
             video_path=temp_path,
             num_frames=6,
@@ -408,11 +459,13 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         )
 
         increment_stat("total_contents_scanned")
+        is_nsfw = results.get("nsfw_detected", False)
+        log_content("video", is_nsfw)
 
-        if results.get("nsfw_detected", False):
+        if is_nsfw:
             increment_stat("total_nsfw_detected")
             violation_count = add_violation(user_id)
-            update_dashboard(user_id, violation_count, "video")  # Update the dashboard
+            update_dashboard(user_id, violation_count, "video")
             await update.message.delete()
             log_action(user_id, "content_removed")
             logger.warning(f"🚨 NSFW detected in media from {user.first_name}, Violation: {violation_count}")
@@ -421,19 +474,24 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 f"⚠️ NSFW content detected in your media! Violation {violation_count}/{FLAG_THRESHOLD}."
             )
             timestamp = int(time.time())
-            cached_filename = os.path.join(FLAGGED_VIDEOS_DIR, f"user_{user_id}_{timestamp}.mp4" if update.message.video else f"user_{user_id}_{timestamp}.gif")
+            cached_filename = os.path.join(
+                FLAGGED_VIDEOS_DIR,
+                f"user_{user_id}_{timestamp}{media_ext}"
+            )
             os.rename(temp_path, cached_filename)
             logger.info(f"Flagged media saved as {cached_filename}")
 
             for admin_id in ADMIN_IDS:
                 await context.bot.send_message(
                     admin_id,
-                    f"🚨 NSFW content detected from user {user.first_name} (ID: {user_id}). Violation {violation_count}/{FLAG_THRESHOLD}."
+                    f"🚨 NSFW content detected from user {user.first_name} (ID: {user_id}). "
+                    f"Violation {violation_count}/{FLAG_THRESHOLD}."
                 )
-                if update.message.video:
-                    await context.bot.send_video(admin_id, video=open(cached_filename, 'rb'))
-                else:
-                    await context.bot.send_animation(admin_id, animation=open(cached_filename, 'rb'))
+                with open(cached_filename, 'rb') as media_file:
+                    if media_ext == ".mp4":
+                        await context.bot.send_video(admin_id, video=media_file)
+                    else:
+                        await context.bot.send_animation(admin_id, animation=media_file)
 
             if violation_count >= FLAG_THRESHOLD:
                 increment_stat("total_users_banned")
@@ -464,18 +522,19 @@ async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     )
         else:
             increment_stat("total_sfw")
-            os.remove(temp_path)
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
             logger.info("Media passed NSFW checks; temporary file removed.")
 
     except Exception as e:
         logger.error(f"Error processing media: {str(e)}")
         try:
             await update.message.reply_text("⚠️ Error processing your media. Please try again.")
-        except telegram.error.BadRequest as e:
-            if "Message to be replied not found" in str(e):
+        except telegram.error.BadRequest as be:
+            if "Message to be replied not found" in str(be):
                 logger.error("Failed to send error message: Message to be replied not found.")
             else:
-                raise e
+                raise be
 
 async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
@@ -498,11 +557,13 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         logger.info(f"Image analysis - User: {user.first_name}, Label: {label}, Confidence: {score:.2f}")
 
         increment_stat("total_contents_scanned")
+        is_nsfw = label.lower() == "nsfw"
+        log_content("image", is_nsfw)
 
-        if label.lower() == "nsfw":
+        if is_nsfw:
             increment_stat("total_nsfw_detected")
             violation_count = add_violation(user_id)
-            update_dashboard(user_id, violation_count, "image")  # Update the dashboard
+            update_dashboard(user_id, violation_count, "image")
             await update.message.delete()
             log_action(user_id, "content_removed")
             logger.warning(f"🚨 NSFW detected in image from {user.first_name}, Violation: {violation_count}")
@@ -517,9 +578,11 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             for admin_id in ADMIN_IDS:
                 await context.bot.send_message(
                     admin_id,
-                    f"🚨 NSFW content detected from user {user.first_name} (ID: {user_id}). Violation {violation_count}/{FLAG_THRESHOLD}."
+                    f"🚨 NSFW content detected from user {user.first_name} (ID: {user_id}). "
+                    f"Violation {violation_count}/{FLAG_THRESHOLD}."
                 )
-                await context.bot.send_photo(admin_id, photo=open(cached_filename, 'rb'))
+                with open(cached_filename, 'rb') as img_file:
+                    await context.bot.send_photo(admin_id, photo=img_file)
 
             if violation_count >= FLAG_THRESHOLD:
                 increment_stat("total_users_banned")
@@ -550,11 +613,18 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     )
         else:
             increment_stat("total_sfw")
-            os.remove(temp_path)
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
     except Exception as e:
         logger.error(f"Error processing image: {str(e)}")
-        await update.message.reply_text("⚠️ Error processing your image. Please try again.")
+        try:
+            await update.message.reply_text("⚠️ Error processing your image. Please try again.")
+        except telegram.error.BadRequest as be:
+            if "Message to be replied not found" in str(be):
+                logger.error("Failed to send error message: Message to be replied not found.")
+            else:
+                raise be
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     pass
@@ -573,7 +643,7 @@ def main() -> None:
     application.add_handler(CommandHandler("admin_reset", admin_reset))
     application.add_handler(CommandHandler("admin_ban", admin_ban))
     application.add_handler(CommandHandler("stats", stats))
-    application.add_handler(MessageHandler(filters.VIDEO, handle_video))
+    application.add_handler(MessageHandler(filters.VIDEO | filters.ANIMATION, handle_video))
     application.add_handler(MessageHandler(filters.PHOTO, handle_image))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     application.add_error_handler(error_handler)
