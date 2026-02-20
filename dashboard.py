@@ -3,11 +3,14 @@ from flask_socketio import SocketIO, emit
 import sqlite3
 import os
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
+app.config['SECRET_KEY'] = os.environ.get('DASHBOARD_SECRET_KEY', os.urandom(24).hex())
 socketio = SocketIO(app)
-DB_FILE = "violations.db"
+DB_FILE = os.environ.get("DB_FILE", "violations.db")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE)
@@ -37,8 +40,15 @@ def api_all_data():
     conn = get_db_connection()
     stats = conn.execute('SELECT key, value FROM stats').fetchall()
     actions = conn.execute('SELECT * FROM actions ORDER BY timestamp DESC').fetchall()
-    violations = conn.execute('SELECT timestamp, COUNT(*) as count FROM actions WHERE action="violation" GROUP BY timestamp').fetchall()
-    content_types = conn.execute('SELECT type, COUNT(*) as count FROM contents GROUP BY type').fetchall()
+    violations = conn.execute(
+        'SELECT timestamp, COUNT(*) as count FROM actions WHERE action="violation" GROUP BY timestamp'
+    ).fetchall()
+    try:
+        content_types = conn.execute(
+            'SELECT type, COUNT(*) as count FROM contents GROUP BY type'
+        ).fetchall()
+    except sqlite3.OperationalError:
+        content_types = []
     conn.close()
     return jsonify({
         'stats': {stat['key']: stat['value'] for stat in stats},
@@ -55,8 +65,15 @@ def get_initial_data():
     conn = get_db_connection()
     stats = conn.execute('SELECT key, value FROM stats').fetchall()
     actions = conn.execute('SELECT * FROM actions ORDER BY timestamp DESC').fetchall()
-    violations = conn.execute('SELECT timestamp, COUNT(*) as count FROM actions WHERE action="violation" GROUP BY timestamp').fetchall()
-    content_types = conn.execute('SELECT type, COUNT(*) as count FROM contents GROUP BY type').fetchall()
+    violations = conn.execute(
+        'SELECT timestamp, COUNT(*) as count FROM actions WHERE action="violation" GROUP BY timestamp'
+    ).fetchall()
+    try:
+        content_types = conn.execute(
+            'SELECT type, COUNT(*) as count FROM contents GROUP BY type'
+        ).fetchall()
+    except sqlite3.OperationalError:
+        content_types = []
     conn.close()
     return {
         'stats': {stat['key']: stat['value'] for stat in stats},
