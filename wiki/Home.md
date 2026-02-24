@@ -4,7 +4,7 @@
 
 **Automated Review for Telegram Environments: Monitoring Inappropriate Submissions System**
 
-*AI-powered NSFW content moderation for Telegram groups*
+*AI-powered NSFW content moderation for Telegram groups — because group admins deserve to sleep*
 
 </div>
 
@@ -12,36 +12,40 @@
 
 ## Welcome
 
-This wiki is the complete technical and operational reference for **A.R.T.E.M.I.S.S.** — an open-source, AI-powered Telegram group moderation bot. Whether you are an operator deploying the bot, a developer extending its capabilities, or a contributor fixing a bug, this wiki has everything you need.
+This is the complete technical and operational reference for **A.R.T.E.M.I.S.S.** — an open-source, AI-powered Telegram group moderation bot.
+
+Whether you're an operator deploying the bot, a developer extending its capabilities, or a contributor fixing a bug at 2 AM while questioning your life choices, this wiki has what you need.
 
 ---
 
 ## Quick Navigation
 
-| Page | Description |
+| Page | What's in it |
 |---|---|
-| [Architecture](Architecture.md) | System design, module breakdown, internal component design |
-| [Installation](Installation.md) | Step-by-step setup guide for all platforms |
-| [Usage](Usage.md) | Operating the bot, admin commands, dashboard guide |
-| [Privacy](Privacy.md) | Data model, retention policies, security posture |
-| [Contributing](Contributing.md) | Developer onboarding, code style, PR process |
-| [Troubleshooting](Troubleshooting.md) | Debugging guide for common errors |
-| [Roadmap](Roadmap.md) | Planned features and versioning strategy |
+| [Architecture](Architecture.md) | How the system is built — modules, data flow, component design |
+| [Installation](Installation.md) | Step-by-step setup for all platforms |
+| [Usage](Usage.md) | Running the bot, admin commands, dashboard |
+| [Privacy](Privacy.md) | What data is stored, how long, and how to purge it |
+| [Troubleshooting](Troubleshooting.md) | Common errors and how to fix them |
+| [Roadmap](Roadmap.md) | What's coming next |
 
 ---
 
 ## What is A.R.T.E.M.I.S.S.?
 
-A.R.T.E.M.I.S.S. is a **server-side Python application** that connects to Telegram's Bot API via long-polling. It intercepts every image, video, and GIF sent to configured groups and runs them through a Vision Transformer (ViT) machine-learning model — `Falconsai/nsfw_image_detection` on HuggingFace — to classify whether content is safe (SFW) or not safe for work (NSFW).
+A.R.T.E.M.I.S.S. is a **server-side Python application** that connects to Telegram's Bot API via long-polling. It sits in your Telegram group and watches every image, video, and GIF that gets sent. Each piece of media is run through a Vision Transformer (ViT) machine-learning model — `Falconsai/nsfw_image_detection` on HuggingFace — to classify whether content is SFW or NSFW.
 
-When NSFW content is detected:
+The OCR-free, pixel-staring brain of the operation is the ViT model. It classifies images by looking at the entire image as a sequence of patches — like reading a book one paragraph at a time, except the book is a JPEG and it's asking "should this be deleted?"
 
-1. The offending message is **deleted** from the group immediately.
-2. The user's **violation count** is incremented in SQLite.
-3. Configured **admin Telegram IDs** receive an alert message and the cached flagged media.
-4. If the user's violation count reaches `FLAG_THRESHOLD` (default: 3), they are **automatically banned** from the group.
+### When NSFW content is detected:
 
-A companion **Flask + Socket.IO web dashboard** provides administrators with real-time statistics and an audit log of all moderation actions.
+1. 🗑️ The offending message is **deleted** from the group immediately
+2. ⚠️ The user receives a **warning** with their current violation count
+3. 📊 The violation count is **incremented** in SQLite
+4. 👮 Configured **admin Telegram IDs** receive a DM alert + the cached flagged media
+5. 🔨 If the user hits `FLAG_THRESHOLD` (default: 3), they are **automatically banned**
+
+A companion **Flask + Socket.IO web dashboard** provides real-time statistics and an audit log of all moderation actions.
 
 ---
 
@@ -66,12 +70,13 @@ A companion **Flask + Socket.IO web dashboard** provides administrators with rea
 
 ```
 A.R.T.E.M.I.S.S/
-├── artemis_bot.py       # Core bot logic
+├── artemis_bot.py       # Core bot logic — all handlers and violation engine
 ├── dashboard.py         # Admin analytics dashboard
-├── setup_db.py          # Database initialisation script
+├── setup_db.py          # Database initialisation script (run once)
 ├── templates/
 │   └── index.html       # Dashboard web UI
 ├── wiki/                # This documentation
+├── assets/              # Demo GIFs and static files
 ├── .env.example         # Configuration template
 ├── requirements.txt     # Python dependencies
 ├── blueprint.md         # Original development blueprint
@@ -80,7 +85,7 @@ A.R.T.E.M.I.S.S/
 
 ---
 
-## Getting Started Fast
+## Getting Started in 60 Seconds
 
 ```bash
 git clone https://github.com/Kaelith69/A.R.T.E.M.I.S.S.git
@@ -92,10 +97,10 @@ python setup_db.py
 python artemis_bot.py
 ```
 
-See [Installation](Installation.md) for the full guide.
+See [Installation](Installation.md) for the full guide including Windows instructions.
 
 ---
 
 ## Contributing
 
-See [Contributing](Contributing.md) for how to set up a development environment, coding conventions, and the pull request process.
+See the [CONTRIBUTING.md](../CONTRIBUTING.md) in the repo root for development setup, commit conventions, and PR process.

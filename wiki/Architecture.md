@@ -1,373 +1,226 @@
 # Architecture
 
-This page provides a deep technical explanation of the A.R.T.E.M.I.S.S. system architecture, module design, and internal component interactions.
+How A.R.T.E.M.I.S.S. is built, what each component does, and how they talk to each other.
 
 ---
 
-## Table of Contents
+## Overview
 
-- [High-Level Overview](#high-level-overview)
-- [Process Model](#process-model)
-- [Module Breakdown](#module-breakdown)
-  - [artemis_bot.py](#artemis_botpy)
-  - [dashboard.py](#dashboardpy)
-  - [setup_db.py](#setup_dbpy)
-  - [templates/index.html](#templatesindexhtml)
-- [ML Inference Layer](#ml-inference-layer)
-- [Database Layer](#database-layer)
-- [Data Flow — Detailed](#data-flow--detailed)
-- [Configuration System](#configuration-system)
-- [Error Handling Strategy](#error-handling-strategy)
-- [Extension Points](#extension-points)
+A.R.T.E.M.I.S.S. is a single-process Python application split across a few focused files. There's no microservices architecture, no message queues, no Kubernetes. It's a bot. It runs. It works. That's the goal.
+
+```
+Telegram API
+    │
+    │ (long-polling)
+    ▼
+artemis_bot.py  ──────── Falconsai ViT Model (PyTorch)
+    │                      (CUDA or CPU inference)
+    │
+    ├──── SQLite DB (violations.db)
+    │         └── violations / stats / actions / contents
+    │
+    ├──── File System
+    │         ├── flagged_images/
+    │         └── flagged_videos/
+    │
+    └──── Admin Telegram DMs (via Bot API)
+
+dashboard.py ──── SQLite DB (same file, read-only queries)
+    │
+    └──── Browser (HTTP + Socket.IO)
+```
 
 ---
 
-## High-Level Overview
+## Components
 
-A.R.T.E.M.I.S.S. is composed of two independent processes that share a single SQLite database file:
+### `artemis_bot.py` — The Brain
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Process 1: artemis_bot.py                               │
-│  ─────────────────────────────────────────────────────── │
-│  Telegram Long-Poll → Message Handlers → ML Inference    │
-│  → Action Decider → DB writes → Admin Notifications      │
-└──────────────────────────┬──────────────────────────────┘
-                           │ shared violations.db
-┌──────────────────────────▼──────────────────────────────┐
-│  Process 2: dashboard.py                                 │
-│  ─────────────────────────────────────────────────────── │
-│  Flask HTTP → REST API → SQLite reads → Socket.IO push   │
-│  → Browser (Chart.js real-time charts)                   │
-└─────────────────────────────────────────────────────────┘
-```
+This is the main application. It runs an async event loop (via `python-telegram-bot`'s `ApplicationBuilder`) and registers handlers for every relevant Telegram event type.
 
-The two processes are **fully decoupled** — the bot does not depend on the dashboard being running, and the dashboard is purely read-only.
+**What it does:**
+- Receives media events via Telegram long-polling
+- Downloads media to a temp file
+- Passes it to the ML model
+- Makes moderation decisions
+- Updates SQLite
+- Notifies admins
+- Cleans up temp files
 
----
+**Key classes and functions:**
 
-## Process Model
-
-| Process | Entry Point | Role | Communication |
-|---|---|---|---|
-| **Bot** | `artemis_bot.py` | Content moderation enforcement | Telegram Bot API (long-poll) |
-| **Dashboard** | `dashboard.py` | Analytics and audit display | HTTP REST + Socket.IO WebSocket |
-
-Both processes are started independently. In production, they would typically run as separate systemd services or Docker containers.
-
----
-
-## Module Breakdown
-
-### artemis_bot.py
-
-The core bot file. It is structured into four logical sections:
-
-#### 1. Configuration & Initialization (lines 1–82)
-
-```python
-load_dotenv()                           # Load .env file
-ADMIN_IDS: set[int] = {…}              # Parse comma-separated admin IDs
-BOT_TOKEN = os.environ.get("BOT_TOKEN") # Telegram token
-_device = 0 if torch.cuda.is_available() else -1  # GPU detection
-nsfw_detector = pipeline(               # Load image classifier once
-    "image-classification",
-    model="Falconsai/nsfw_image_detection",
-    device=_device,
-)
-```
-
-The NSFW image pipeline is loaded **once at module level** as a module singleton. This is a deliberate design choice — loading the ViT model on every request would be prohibitively slow (~3–10 seconds per load).
-
-#### 2. VideoContentAnalyzer Class (lines 88–179)
-
-```python
-class VideoContentAnalyzer:
-    def __init__(self, model_name):
-        self.model = AutoModelForImageClassification.from_pretrained(model_name)
-        self.processor = ViTImageProcessor.from_pretrained(model_name)
-
-    def analyze_frame(self, image: Image) -> Tuple[str, float]:
-        # Single-frame ViT inference
-
-    def analyze_video(self, video_path, num_frames=6, stop_on_nsfw=True, nsfw_threshold=0.5) -> dict:
-        # OpenCV frame extraction + multi-frame inference
-```
-
-A module-level singleton (`_video_analyzer`) is lazily instantiated via `get_video_analyzer()` on the first video message received. This avoids loading the model if no videos are ever sent.
-
-**Key design decisions:**
-- `num_frames=6`: Balances detection coverage against inference latency.
-- `stop_on_nsfw=True`: Early exit optimization — stops sampling after first NSFW frame.
-- Frame positions are calculated as `min(i * interval, total_frames - 1)` to avoid out-of-bounds reads.
-
-#### 3. Database Functions (lines 183–308)
-
-All database operations are implemented as standalone functions using direct `sqlite3` connections (no ORM):
-
-| Function | Description |
-|---|---|
-| `init_db()` | Creates all tables with `CREATE TABLE IF NOT EXISTS` |
-| `get_violation_count(user_id)` | Reads current violation count for a user |
-| `add_violation(user_id)` | Atomically increments via `INSERT OR REPLACE` |
-| `reset_violation(user_id)` | Deletes the user's row |
-| `get_all_violations()` | Returns all users with count > 0 |
-| `log_action(user_id, action)` | Appends to audit log with timestamp |
-| `increment_stat(key)` | Thread-safe counter increment via `INSERT OR IGNORE` + `UPDATE` |
-| `get_stat(key)` | Reads a single stat counter |
-| `get_all_stats()` | Returns all stats as a dict |
-| `log_content(type, is_nsfw)` | Records each scan result in contents table |
-
-Each function opens and closes its own connection. This is appropriate for a single-process bot with moderate traffic; for high-volume deployments, a connection pool would be preferable.
-
-#### 4. Bot Command & Message Handlers (lines 313–655)
-
-| Handler | Trigger | Logic |
+| Symbol | Type | Purpose |
 |---|---|---|
-| `start` | `/start` command | Welcome message |
-| `help_command` | `/help` command | HTML-formatted command list |
-| `violations` | `/violations` command | Queries DB for user's count |
-| `admin_flagged` | `/admin_flagged` command | Lists all flagged users (admin-gated) |
-| `admin_reset` | `/admin_reset <id>` command | Resets a user's violation count (admin-gated) |
-| `admin_ban` | `/admin_ban <id>` command | Issues `ban_chat_member` API call (admin-gated) |
-| `stats` | `/stats` command | Returns all stat counters |
-| `handle_image` | `filters.PHOTO` | Full image moderation pipeline |
-| `handle_video` | `filters.VIDEO \| filters.ANIMATION` | Full video/GIF moderation pipeline |
-| `handle_text` | `filters.TEXT` | No-op placeholder (for future spam detection) |
-| `error_handler` | All errors | Logs errors, sends user-facing error message |
+| `VideoContentAnalyzer` | class | Wraps the ViT model for per-frame video analysis |
+| `get_video_analyzer()` | function | Returns a module-level singleton of `VideoContentAnalyzer` |
+| `nsfw_detector` | pipeline | Module-level HuggingFace pipeline for image classification |
+| `handle_image()` | async handler | Processes photo messages |
+| `handle_video()` | async handler | Processes video and GIF/animation messages |
+| `add_violation()` | function | Increments user violation count; returns new count |
+| `init_db()` | function | Creates all tables if they don't exist |
 
-**Admin gate pattern:**
-```python
-if user.id not in ADMIN_IDS:
-    await update.message.reply_text("❌ You are not authorized.")
-    return
-```
-
-**Image moderation pipeline** (`handle_image`):
-```
-download temp file → run nsfw_detector → check label →
-  if NSFW: delete message, add_violation, notify admins, cache file, maybe ban
-  if SFW: remove temp file
-in all cases: increment stats, log_content
-```
-
-**Video moderation pipeline** (`handle_video`):
-```
-determine media type (video or animation) → download temp file →
-get_video_analyzer() → analyze_video() →
-  if NSFW: delete, add_violation, cache, notify admins, maybe ban
-  if SFW: remove temp file
-in all cases: increment stats, log_content
-```
+**Initialization order on startup:**
+1. Load `.env`
+2. Parse `ADMIN_IDS` and `BOT_TOKEN` from environment
+3. Load Falconsai image pipeline (downloads model if needed)
+4. Load `VideoContentAnalyzer` (singleton instantiated on first video)
+5. `init_db()` — ensure schema exists
+6. Register all command and message handlers
+7. Start long-polling
 
 ---
 
-### dashboard.py
+### Falconsai ViT Model — The Starer of Pixels
 
-A lightweight Flask application providing a read-only view of the SQLite database.
+The ML model is `Falconsai/nsfw_image_detection`, a Vision Transformer fine-tuned for binary classification: `nsfw` vs `normal`.
 
-#### Routes
+**Image path:**
+```
+temp file → HuggingFace pipeline() → [{"label": "nsfw", "score": 0.97}]
+```
 
-| Route | Method | Description |
+**Video path:**
+```
+video file → OpenCV frame extraction (6 frames)
+           → each frame → PIL Image → ViTImageProcessor → model
+           → torch.softmax → argmax → label + confidence
+           → if nsfw AND confidence ≥ 0.5 → stop early
+```
+
+The `stop_on_nsfw=True` flag means the video analyzer bails out as soon as it finds a NSFW frame. No point analyzing 5 more frames once the verdict is in — saves compute and time.
+
+Model inference runs on:
+- `cuda:0` if a CUDA GPU is detected (`torch.cuda.is_available()`)
+- `cpu` otherwise
+
+The model is a **module-level singleton** — it loads once when the bot starts, then every incoming message reuses the same model instance. Avoids reloading 350MB into memory for every cat video.
+
+---
+
+### `dashboard.py` — The Dashboard
+
+A Flask web application that provides a real-time view into what the bot is doing.
+
+**Endpoints:**
+
+| Route | Method | Returns |
 |---|---|---|
 | `/` | GET | Renders `templates/index.html` |
-| `/api/stats` | GET | Returns `{key: value}` stats dict |
-| `/api/actions` | GET | Returns all actions ordered by timestamp desc |
-| `/api/all_data` | GET | Returns stats + actions + violations + content_types |
+| `/api/stats` | GET | JSON: key/value stats from `stats` table |
+| `/api/actions` | GET | JSON: all rows from `actions` table, newest first |
+| `/api/all_data` | GET | JSON: combined stats + violations + actions + content_types |
 
-#### Socket.IO
+**Socket.IO:**
+- On `connect`: emits `initial_data` with current DB state
+- Background thread: every 10 seconds, emits `update_data` to all connected clients
 
-| Event | Direction | Description |
-|---|---|---|
-| `connect` | Client → Server | Triggers `emit('initial_data', …)` |
-| `initial_data` | Server → Client | Full dataset on connect |
-| `update_data` | Server → Client | Periodic push every 10 seconds |
+The dashboard and the bot share the same `violations.db` file. The dashboard only reads — it never writes to the database.
 
-The background thread runs `socketio.emit('update_data', get_initial_data())` every 10 seconds, which pushes fresh DB reads to all connected clients simultaneously.
+> ⚠️ The dashboard has no authentication in v0.1. Bind it to localhost and use a reverse proxy if you need to expose it beyond your local machine.
 
 ---
 
-### setup_db.py
+### `setup_db.py` — Database Init
 
-A one-shot script that creates all four SQLite tables and seeds initial stat counters. Idempotent — safe to run multiple times due to `CREATE TABLE IF NOT EXISTS` and `INSERT OR IGNORE`.
+A standalone script that creates all four tables and inserts the initial zero-values for stats counters. It's idempotent — safe to run multiple times (`CREATE TABLE IF NOT EXISTS`, `INSERT OR IGNORE`).
 
----
-
-### templates/index.html
-
-A single-page application (SPA) served by Flask. Technologies used:
-
-- **Tailwind CSS 2.2.19** — responsive dark-mode UI
-- **Chart.js 3.7.1** — 5 chart types: line, bar, doughnut, horizontal bar, multi-line
-- **chartjs-plugin-zoom 1.2.1** — scroll zoom and pan on the Action Trend chart
-- **Socket.IO 4.4.1** — real-time data push
-- **html2pdf.js 0.10.1** — client-side PDF export capability
-
-Chart instances are stored in module-level variables and updated in-place (`.data.labels`, `.data.datasets[0].data`, `.update()`) to avoid recreation on every push — preserving zoom state and render performance.
+Run it once before the first bot start, or let `init_db()` inside `artemis_bot.py` handle it automatically on startup.
 
 ---
 
-## ML Inference Layer
+### `templates/index.html` — Dashboard UI
 
-### Model: Falconsai/nsfw_image_detection
+A single-page HTML application using:
+- **Tailwind CSS** (CDN) for styling — dark theme by default
+- **Chart.js** (CDN) for data visualizations
+- **Socket.IO client** (CDN) for live updates
+- **html2pdf** (CDN) for PDF export support
 
-- **Architecture:** Vision Transformer (ViT-base-patch16-224)
-- **Task:** Binary image classification (`nsfw` / `normal`)
-- **Input:** RGB images, resized to 224×224 by `ViTImageProcessor`
-- **Output:** Softmax probabilities over two classes
-- **Source:** [huggingface.co/Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection)
-
-### Two access patterns
-
-| Pattern | Used for | API |
-|---|---|---|
-| `pipeline("image-classification")` | Still images | `nsfw_detector(file_path)` |
-| `AutoModelForImageClassification` + `ViTImageProcessor` | Video frames | `VideoContentAnalyzer.analyze_frame(pil_image)` |
-
-Both patterns use the **same underlying model weights** — the difference is only in how inputs are fed. The pipeline pattern is more convenient for single images; the direct model + processor pattern gives finer control for batch frame processing.
-
-### GPU Acceleration
-
-```python
-_device = 0 if torch.cuda.is_available() else -1  # for pipeline
-self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # for VideoContentAnalyzer
-```
-
-When a CUDA GPU is available, inference is 10–20× faster, which is significant for high-traffic groups.
+The page connects to the Socket.IO server on load, receives `initial_data`, then updates live whenever `update_data` events arrive.
 
 ---
 
-## Database Layer
-
-### Schema
+## Database Schema
 
 ```sql
+-- Per-user violation counts
 CREATE TABLE violations (
     user_id INTEGER PRIMARY KEY,
     count   INTEGER
 );
 
+-- Aggregate counters
 CREATE TABLE stats (
     key   TEXT PRIMARY KEY,
     value INTEGER
 );
 
+-- Moderation action audit log
 CREATE TABLE actions (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id   INTEGER,
-    action    TEXT,
-    timestamp TEXT
+    action    TEXT,          -- e.g. "content_removed", "user_banned"
+    timestamp TEXT           -- "YYYY-MM-DD HH:MM:SS"
 );
 
+-- Scanned content log (type + NSFW flag)
 CREATE TABLE contents (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    type    TEXT,
-    is_nsfw INTEGER
+    type    TEXT,             -- "image" or "video"
+    is_nsfw INTEGER           -- 0 or 1
 );
 ```
 
-### Stat Keys
+**Stats keys:**
 
-| Key | Incremented when |
+| Key | Meaning |
 |---|---|
-| `total_contents_scanned` | Any image or video is processed |
-| `total_nsfw_detected` | Content is classified NSFW |
-| `total_sfw` | Content is classified SFW |
-| `total_users_banned` | A user is auto-banned |
-| `total_violations` | Any violation is added |
+| `total_contents_scanned` | Total items processed |
+| `total_nsfw_detected` | Total NSFW items found |
+| `total_sfw` | Total clean items |
+| `total_users_banned` | Total auto-ban events |
+| `total_violations` | Total violation increments |
 
 ---
 
-## Data Flow — Detailed
+## Configuration
 
-```
-Telegram Update (photo/video/animation)
-         │
-         ▼
-python-telegram-bot ApplicationBuilder
-         │  dispatches to correct handler
-         ▼
-handle_image() or handle_video()
-         │
-         ├─ Download media to temp file (temp_{user_id}.jpg/.mp4/.gif)
-         │
-         ├─ [Image] nsfw_detector(temp_path)
-         │    └─ HuggingFace pipeline → ViT inference → (label, score)
-         │
-         └─ [Video/GIF] get_video_analyzer().analyze_video(temp_path)
-              ├─ cv2.VideoCapture → frame extraction
-              ├─ PIL.Image.fromarray() → RGB conversion
-              └─ analyze_frame() → ViT inference → (label, confidence)
-                        │
-                        ▼
-              results dict: {nsfw_detected, frames_analyzed, frame_results, …}
-         │
-         ├─ increment_stat("total_contents_scanned")
-         ├─ log_content(type, is_nsfw)
-         │
-         ├─ [NSFW path]
-         │   ├─ increment_stat("total_nsfw_detected")
-         │   ├─ violation_count = add_violation(user_id)
-         │   ├─ update.message.delete()
-         │   ├─ log_action(user_id, "content_removed")
-         │   ├─ send warning to group chat
-         │   ├─ os.rename(temp_path, cached_path)  ← preserve evidence
-         │   ├─ for admin in ADMIN_IDS: send_message() + send_photo/video()
-         │   └─ if violation_count >= FLAG_THRESHOLD:
-         │       ├─ ban_chat_member(chat_id, user_id)
-         │       ├─ log_action(user_id, "user_banned")
-         │       ├─ increment_stat("total_users_banned")
-         │       └─ reset_violation(user_id)
-         │
-         └─ [SFW path]
-             ├─ increment_stat("total_sfw")
-             └─ os.remove(temp_path)
-```
+All runtime configuration lives in environment variables (loaded from `.env` via `python-dotenv`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `BOT_TOKEN` | — | Telegram Bot API token (required) |
+| `ADMIN_IDS` | — | Comma-separated admin user IDs (required) |
+| `FLAG_THRESHOLD` | `3` | Violations before ban |
+| `DB_FILE` | `violations.db` | SQLite file path |
+| `FLAGGED_IMAGES_DIR` | `flagged_images` | Where to cache flagged images |
+| `FLAGGED_VIDEOS_DIR` | `flagged_videos` | Where to cache flagged videos |
+| `DASHBOARD_SECRET_KEY` | auto-generated | Flask session secret |
 
 ---
 
-## Configuration System
-
-All runtime configuration flows through environment variables loaded by `python-dotenv`:
+## Moderation Decision Logic
 
 ```
-.env file
-   └─ load_dotenv()
-         ├─ BOT_TOKEN        → direct string
-         ├─ ADMIN_IDS        → parsed into set[int]
-         ├─ FLAG_THRESHOLD   → int()
-         ├─ DB_FILE          → string path
-         ├─ FLAGGED_IMAGES_DIR → os.makedirs() on startup
-         ├─ FLAGGED_VIDEOS_DIR → os.makedirs() on startup
-         └─ DASHBOARD_SECRET_KEY → Flask app.config
+Media received
+    ↓
+Download to temp file
+    ↓
+Run model → label, confidence
+    ↓
+label == "nsfw"?
+    │
+   YES → delete message
+       → increment violation count → check threshold
+       → threshold reached? → ban user (group only)
+       → notify each admin (DM + media)
+       → cache media in flagged_*/ dir
+    │
+    NO → delete temp file → done
 ```
 
-Missing required variables (`BOT_TOKEN`) cause an immediate `RuntimeError` at startup. Missing optional variables silently use defaults.
-
----
-
-## Error Handling Strategy
-
-| Error type | Handling |
-|---|---|
-| Model load failure | `logger.error()` + `raise` — bot refuses to start with broken model |
-| Telegram API errors | `telegram.error.BadRequest` caught and logged per handler |
-| Chat owner ban attempt | Graceful catch — warning sent instead of crash |
-| Missing message (already deleted) | `"Message to be replied not found"` caught and logged |
-| Video file not found | `FileNotFoundError` raised by `analyze_video` — caught by outer try/except |
-| General exceptions | `error_handler` sends user-facing error message |
-| Empty ADMIN_IDS | `warnings.warn()` — bot starts but admins won't receive alerts |
-
----
-
-## Extension Points
-
-| Extension | Where to modify |
-|---|---|
-| Add a new detection model | Replace or augment `nsfw_detector` in the initialization section |
-| Add text spam detection | Implement in `handle_text()` (currently a no-op) |
-| Add per-group configuration | Extend the `violations` table with a `chat_id` column |
-| Switch to PostgreSQL | Replace `sqlite3` calls with `psycopg2` or SQLAlchemy |
-| Add webhook mode | Replace `run_polling()` with `run_webhook()` in `main()` |
-| Add more admin commands | Register new `CommandHandler` in `main()` with admin gate |
-| Add dashboard authentication | Add Flask-Login or HTTP Basic Auth to `dashboard.py` |
+The `VideoContentAnalyzer.analyze_video()` method returns a `dict` with:
+- `frames_analyzed`: how many frames were processed
+- `nsfw_detected`: boolean
+- `frame_results`: list of per-frame results
+- `first_nsfw_frame`: the first frame that triggered NSFW, or `None`

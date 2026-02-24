@@ -1,183 +1,129 @@
 # Privacy
 
-This page describes how A.R.T.E.M.I.S.S. collects, stores, and handles data — including user data, media, and configuration secrets.
+What A.R.T.E.M.I.S.S. stores, what it doesn't, how long it keeps things, and how to delete it.
 
 ---
 
-## Table of Contents
+## What Data is Stored
 
-- [Design Philosophy](#design-philosophy)
-- [What Data is Collected](#what-data-is-collected)
-- [What Data is NOT Collected](#what-data-is-not-collected)
-- [Data Storage](#data-storage)
-- [Media Retention](#media-retention)
-- [Credentials and Secrets](#credentials-and-secrets)
-- [Dashboard Security](#dashboard-security)
-- [Telegram API Compliance](#telegram-api-compliance)
-- [Recommendations for Operators](#recommendations-for-operators)
-- [Data Deletion](#data-deletion)
+### SQLite Database (`violations.db`)
+
+| Table | What's stored | Personal data? |
+|---|---|---|
+| `violations` | Telegram user ID + violation count | User ID only (no name, no username) |
+| `stats` | Aggregate counters (totals only) | No |
+| `actions` | User ID + action type + timestamp | User ID only |
+| `contents` | Media type + NSFW flag (no user ID) | No |
+
+**Key point:** The bot stores Telegram user IDs — numeric identifiers. It does not store:
+- Usernames
+- First/last names
+- Phone numbers
+- Profile photos
+- Message content (text, captions, etc.)
+
+If you need to look up who a user ID belongs to, you'd need to cross-reference with Telegram — the bot doesn't maintain that mapping.
+
+### Cached Flagged Media
+
+NSFW content that is flagged is **cached to disk** for admin review:
+- Images → `flagged_images/user_<id>_<timestamp>.jpg`
+- Videos/GIFs → `flagged_videos/user_<id>_<timestamp>.mp4|gif`
+
+This media stays on disk indefinitely until an admin manually cleans it up. The bot never automatically deletes cached flagged media.
+
+SFW media is **never cached** — the temp file is deleted immediately after classification.
+
+### Temporary Files
+
+During processing, media is written to a temp file (`temp_<user_id>.jpg`, `temp_<user_id>.mp4`, etc.) in the bot's working directory. These files are:
+- Deleted immediately after a SFW classification
+- Renamed and moved to the cache directory after a NSFW classification
+
+If the bot crashes mid-processing, temp files may be left behind. They can be safely deleted manually.
 
 ---
 
-## Design Philosophy
+## What Data is NOT Stored
 
-A.R.T.E.M.I.S.S. is built on the principle of **data minimalism**: only the data strictly necessary for moderation enforcement is collected and retained. The system is designed to be self-hosted — all data stays on your own server, with no third-party telemetry, analytics services, or cloud storage.
+- Message text or captions
+- Usernames or display names
+- Profile pictures
+- Group names or chat IDs (beyond what the Telegram event contains in memory)
+- Media from SFW messages (deleted immediately)
+- Any analytics beyond the counters in the `stats` table
 
 ---
 
-## What Data is Collected
+## Where Data Lives
 
-| Data | Where stored | Purpose | Retention |
+Everything is stored **locally on your server**. There is no external data transmission beyond:
+- The Telegram Bot API connection (required for the bot to function — messages flow through Telegram's servers as normal)
+- The HuggingFace model download (one-time download of model weights on first run)
+
+**The model runs locally.** Your users' media is not sent to HuggingFace or any external API for classification. All inference happens on your machine.
+
+---
+
+## Data Retention
+
+The bot has no automatic data retention policy. Everything accumulates until you clean it up.
+
+### Recommended practices
+
+**Violations table:** Old violation records for users who were banned or are no longer in the group can be cleaned up:
+```sql
+DELETE FROM violations WHERE count = 0;
+```
+
+**Actions table:** The audit log grows indefinitely. If it gets large:
+```sql
+DELETE FROM actions WHERE timestamp < '2025-01-01 00:00:00';
+```
+
+**Cached flagged media:** Review and delete files in `flagged_images/` and `flagged_videos/` periodically once you've reviewed them.
+
+**Stats table:** Counters only — no personal data. Leave them alone or reset if you want a fresh start:
+```sql
+UPDATE stats SET value = 0;
+```
+
+---
+
+## Access Control
+
+- The SQLite database is a local file. Protect it with filesystem permissions (read/write for the bot user only).
+- The flagged media directories contain NSFW content. Restrict access appropriately.
+- The **dashboard has no authentication** in v0.1 — it exposes the DB contents over HTTP. Do not expose it to the public internet. Bind to localhost and use an authenticated reverse proxy (nginx + htpasswd, etc.) if you need remote access.
+
+---
+
+## GDPR / Data Subject Requests
+
+If you're operating this bot in a context subject to GDPR (or similar regulation), and a user requests deletion of their data:
+
+1. Find their Telegram user ID
+2. Run the following:
+
+```sql
+DELETE FROM violations WHERE user_id = <user_id>;
+DELETE FROM actions WHERE user_id = <user_id>;
+```
+
+3. Manually delete any cached flagged media files matching `user_<id>_*.jpg/mp4/gif`
+
+The `contents` table doesn't contain user IDs, so nothing to delete there.
+
+---
+
+## Summary
+
+| Data type | Stored | Where | How long |
 |---|---|---|---|
-| Telegram user ID (integer) | `violations` table | Violation tracking and ban enforcement | Until manually deleted or reset |
-| Violation count (integer) | `violations` table | Threshold enforcement | Reset to 0 on auto-ban; deleted via `/admin_reset` |
-| Action type + timestamp | `actions` table | Audit log | Indefinite (no automatic purging) |
-| Content type + NSFW flag | `contents` table | Dashboard analytics | Indefinite |
-| Aggregated stat counters | `stats` table | Dashboard counters | Indefinite |
-| Flagged media files | `flagged_images/` or `flagged_videos/` | Admin review, evidence retention | Until manually deleted by the operator |
-
----
-
-## What Data is NOT Collected
-
-- ❌ User names, first names, or usernames
-- ❌ Message text content
-- ❌ Group names or group IDs
-- ❌ User phone numbers or email addresses
-- ❌ IP addresses
-- ❌ Non-NSFW media (safe content is processed in memory and the temp file is deleted immediately)
-- ❌ Any data is sent to external services (all processing is local)
-
----
-
-## Data Storage
-
-All persistent data is stored in a **local SQLite file** (`violations.db` by default). This file:
-
-- Resides on the server where the bot is running
-- Is not encrypted at rest (consider filesystem-level encryption for sensitive deployments)
-- Should be excluded from version control (already included in `.gitignore`)
-- Contains only integer user IDs — never personally identifiable names or content
-
----
-
-## Media Retention
-
-When NSFW content is detected, the flagged media is saved to disk:
-
-- **Images:** `flagged_images/user_{user_id}_{timestamp}.jpg`
-- **Videos/GIFs:** `flagged_videos/user_{user_id}_{timestamp}.mp4` or `.gif`
-
-These files are retained **indefinitely** until the operator manually deletes them. Operators are responsible for:
-
-1. Establishing a retention policy appropriate for their jurisdiction.
-2. Regularly purging old flagged media.
-3. Securing the directories from unauthorized access (file system permissions).
-
-The `flagged_images/` and `flagged_videos/` directories are excluded from git via `.gitignore`.
-
-**Example cleanup script:**
-```bash
-# Delete flagged images older than 30 days
-find flagged_images/ -name "*.jpg" -mtime +30 -delete
-find flagged_videos/ -name "*.mp4" -mtime +30 -delete
-```
-
----
-
-## Credentials and Secrets
-
-| Secret | Handling |
-|---|---|
-| `BOT_TOKEN` | Loaded from `.env` only; never hard-coded; `.env` is git-ignored |
-| `ADMIN_IDS` | Same as above |
-| `DASHBOARD_SECRET_KEY` | Same as above; auto-generated securely with `os.urandom(24).hex()` if omitted |
-
-**Best practices:**
-- Never commit `.env` to version control.
-- Use strong, random values for `DASHBOARD_SECRET_KEY`.
-- Rotate the `BOT_TOKEN` immediately if it is ever accidentally exposed (via @BotFather → `/revoke`).
-- Restrict file permissions on `.env`: `chmod 600 .env`
-
----
-
-## Dashboard Security
-
-The Flask dashboard (`dashboard.py`) is a **read-only** interface:
-
-- No write endpoints are exposed — all `/api/*` routes return data only.
-- The dashboard does not authenticate users by default — **do not expose it to the public internet without adding authentication**.
-- For production deployments, consider:
-  - Running behind a reverse proxy (nginx/Caddy) with HTTPS
-  - Adding HTTP Basic Auth at the reverse proxy level
-  - Binding to `127.0.0.1` only (the default for Flask in debug mode)
-  - Using a VPN or SSH tunnel for remote access
-
----
-
-## Telegram API Compliance
-
-A.R.T.E.M.I.S.S. operates exclusively through the official Telegram Bot API and adheres to:
-
-- [Telegram Terms of Service](https://telegram.org/tos)
-- [Telegram Bot API Terms](https://core.telegram.org/bots/api)
-- [Telegram Privacy Policy](https://telegram.org/privacy)
-
-The bot:
-- Only processes media sent to groups where it has been explicitly added as an administrator.
-- Does not access messages in groups where it is not a member.
-- Does not store message text content.
-- Does not forward media to any external service — all ML inference is performed locally.
-
----
-
-## Recommendations for Operators
-
-If you are deploying this bot in a Telegram group, consider informing your members:
-
-1. That automated moderation is active and images/videos are scanned for NSFW content.
-2. That flagged content may be temporarily cached for admin review.
-3. What the violation threshold is and what consequences violations carry.
-
-Transparency with your community is both ethically sound and may be required under applicable data protection regulations (e.g., GDPR in the EU).
-
----
-
-## Data Deletion
-
-### Delete a user's violation record
-
-```bash
-# Using the bot command
-/admin_reset <user_id>
-
-# Or directly in SQLite
-sqlite3 violations.db "DELETE FROM violations WHERE user_id = <user_id>;"
-sqlite3 violations.db "DELETE FROM actions WHERE user_id = <user_id>;"
-```
-
-### Delete all moderation data
-
-```bash
-# Full reset — deletes all data but preserves table structure
-sqlite3 violations.db "DELETE FROM violations;"
-sqlite3 violations.db "DELETE FROM actions;"
-sqlite3 violations.db "DELETE FROM contents;"
-sqlite3 violations.db "UPDATE stats SET value = 0;"
-```
-
-### Delete flagged media for a specific user
-
-```bash
-# Remove all cached media for user ID 123456789
-rm flagged_images/user_123456789_*.jpg
-rm flagged_videos/user_123456789_*.mp4
-rm flagged_videos/user_123456789_*.gif
-```
-
-### Full deletion
-
-```bash
-rm violations.db
-rm -rf flagged_images/ flagged_videos/
-```
+| Violation counts | Yes | SQLite | Until manually deleted |
+| Action audit log | Yes | SQLite | Until manually deleted |
+| Flagged media | Yes | Disk | Until manually deleted |
+| SFW media | No | Temp file (deleted after scan) | < seconds |
+| Usernames / names | No | — | — |
+| Message text | No | — | — |
+| Analytics telemetry | No | — | — |

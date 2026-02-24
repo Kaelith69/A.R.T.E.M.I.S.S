@@ -1,109 +1,78 @@
 # Usage
 
-Complete guide to operating A.R.T.E.M.I.S.S. — including group setup, bot commands, violation lifecycle, and dashboard usage.
+Complete guide to operating A.R.T.E.M.I.S.S. — group setup, commands, violation lifecycle, and dashboard.
 
 ---
 
-## Table of Contents
+## Prerequisites
 
-- [Setting Up in a Telegram Group](#setting-up-in-a-telegram-group)
-- [Bot Commands Reference](#bot-commands-reference)
-- [How Moderation Works](#how-moderation-works)
-- [Violation Lifecycle](#violation-lifecycle)
-- [Admin Workflow](#admin-workflow)
-- [Dashboard Guide](#dashboard-guide)
-- [Statistics Explained](#statistics-explained)
-- [Adjusting Sensitivity](#adjusting-sensitivity)
-- [Edge Cases & Behaviour Notes](#edge-cases--behaviour-notes)
+- Bot is installed and running (`python artemis_bot.py`)
+- Bot has admin permissions in the target Telegram group (delete messages + ban users)
+- `ADMIN_IDS` is configured with at least one admin Telegram user ID
 
 ---
 
-## Setting Up in a Telegram Group
+## Adding the Bot to a Group
 
-### Step 1 — Add the bot to your group
+1. Find your bot on Telegram by its username
+2. In the group, tap the group name → Add Members → search for your bot
+3. After adding, go to group settings → Administrators → promote the bot
+4. Grant: **Delete Messages** and **Ban Users**
+5. Send `/start` in the group to confirm the bot is online
 
-In Telegram, open your group → **Add Member** → search for your bot's username → Add.
-
-### Step 2 — Grant admin permissions
-
-Go to group **Manage Group** → **Administrators** → your bot → enable:
-
-| Permission | Required | Reason |
-|---|---|---|
-| **Delete Messages** | ✅ Yes | To remove NSFW content |
-| **Ban Users** | ✅ Yes | For auto-ban enforcement |
-| **Send Messages** | ✅ Yes | To send warnings and notifications |
-| Change Group Info | ❌ No | Not used |
-| Pin Messages | ❌ No | Not used |
-
-### Step 3 — Start the bot process
-
-```bash
-python artemis_bot.py
-```
-
-The bot will immediately begin monitoring all media sent to the group.
+The bot monitors every photo, video, and GIF from that point on. No configuration needed per-chat — it just works.
 
 ---
 
-## Bot Commands Reference
+## Bot Commands
 
-### User Commands
-
-These commands can be used by any group member in private chat with the bot or directly in the group.
+### Available to Everyone
 
 #### `/start`
+Sends the welcome message with a quick summary of what the bot does.
 
-Sends the welcome message with a brief overview of the bot's capabilities.
-
-**Example response:**
 ```
 🤖 Welcome to A.R.T.E.M.I.S.S.!
-
 Send me an image or video to check for NSFW content.
 Use /violations to check your NSFW violation count.
 Use /help for more commands.
 ```
 
 #### `/help`
-
-Displays the full command reference with HTML formatting.
+Full command reference.
 
 #### `/violations`
+Check your own violation count.
 
-Shows your current violation count.
-
-**Example response:**
 ```
-⚠️ John, you have 1 NSFW violation(s).
+⚠️ Alice, you have 1 NSFW violation(s).
 ```
 
 #### `/stats`
+View aggregate bot statistics.
 
-Shows aggregate moderation statistics.
-
-**Example response:**
 ```
 📊 Bot Statistics
 
-Total Contents Scanned: 1,247
-Total NSFW Detected: 38
-Total SFW: 1,209
-Total Users Banned: 4
-Total Violations: 87
+Total Contents Scanned: 142
+Total NSFW Detected: 7
+Total SFW: 135
+Total Users Banned: 1
+Total Violations: 11
 ```
 
 ---
 
-### Admin Commands
+### Admin-Only Commands
 
-These commands require your Telegram user ID to be listed in the `ADMIN_IDS` environment variable. Using them without authorization returns an error message.
+These commands only work for user IDs listed in `ADMIN_IDS`. Anyone else gets:
+```
+❌ You are not authorized to use this command.
+```
 
 #### `/admin_flagged`
+List all users who have at least one violation.
 
-Lists all users who currently have at least one violation on record.
-
-**Example response:**
 ```
 Flagged Users:
 User ID: 123456789, Violations: 2
@@ -111,222 +80,132 @@ User ID: 987654321, Violations: 1
 ```
 
 #### `/admin_reset <user_id>`
+Reset a specific user's violation count to zero.
 
-Resets a specific user's violation count to zero.
-
-**Usage:**
 ```
 /admin_reset 123456789
+→ Reset violation count for user ID: 123456789
 ```
 
-**Example response:**
-```
-Reset violation count for user ID: 123456789
-```
+Useful when a user was falsely flagged or has served their time.
 
 #### `/admin_ban <user_id>`
+Manually ban a user from the current group, regardless of their violation count.
 
-Manually bans a specific user from the current group, regardless of their violation count.
-
-**Usage:**
 ```
 /admin_ban 123456789
+→ 🚫 User ID 123456789 has been banned.
 ```
-
-**Example response:**
-```
-🚫 User ID 123456789 has been banned.
-```
-
-> **Note:** This command bans the user from the group in which the command was issued. Ensure you run it from the correct group.
 
 ---
 
 ## How Moderation Works
 
-### Image Moderation
+### Images
 
-1. A user sends a photo in a monitored group.
-2. The bot downloads the photo to a temporary file.
-3. The image is passed through the `Falconsai/nsfw_image_detection` ViT classifier.
-4. The classifier returns a label (`nsfw` or `normal`) and a confidence score.
-5. If `label == "nsfw"`:
-   - The message is deleted
-   - The violation count is incremented
-   - The image is cached for admin review
-   - Admins receive an alert with the image
-   - If violations ≥ `FLAG_THRESHOLD`, the user is banned
-6. If `label == "normal"`: the temporary file is deleted silently.
+When a user sends a photo:
+1. Bot downloads the image to a temp file
+2. Runs it through the Falconsai ViT pipeline
+3. Gets back `{"label": "nsfw"|"normal", "score": 0.0–1.0}`
+4. If label is `"nsfw"` → NSFW action flow
+5. If label is `"normal"` → delete temp file, no action
 
-### Video & GIF Moderation
+### Videos and GIFs
 
-1. A user sends a video or GIF (animation) in the group.
-2. The bot downloads it to a temporary file.
-3. `VideoContentAnalyzer.analyze_video()` extracts 6 evenly-spaced frames using OpenCV.
-4. Each frame is converted to a PIL image and classified by the ViT model.
-5. Analysis stops immediately on the first NSFW frame detected (`stop_on_nsfw=True`).
-6. The same enforcement actions as image moderation are applied if NSFW is found.
+When a user sends a video or animation:
+1. Bot downloads the file to a temp file
+2. `VideoContentAnalyzer` opens the file with OpenCV
+3. Samples 6 frames at evenly-spaced intervals
+4. Each frame runs through the ViT model
+5. If any frame is `"nsfw"` with confidence ≥ 50% → **stop early**, NSFW action flow
+6. If all 6 frames are clean → delete temp file, no action
 
-### Confidence Threshold
+The early-stop behavior means the bot doesn't waste compute analyzing the remaining 5 frames of a video once it's found enough evidence to act.
 
-The default NSFW confidence threshold is **0.5 (50%)**. Content with a score below this threshold is treated as safe, even if the top label is `nsfw`. This reduces false positives on ambiguous content.
+---
+
+## NSFW Action Flow
+
+When NSFW content is detected:
+
+1. **Delete the message** — the offending photo/video/GIF is removed from the group
+2. **Warn the user** — bot sends a message: `⚠️ NSFW content detected in your image! Violation 1/3.`
+3. **Cache the media** — saved to `flagged_images/` or `flagged_videos/` with a timestamp filename
+4. **Notify admins** — each admin receives a DM with:
+   - Alert message with user name, ID, and violation count
+   - The cached flagged media (forwarded for review)
+5. **Check the threshold** — if violation count ≥ `FLAG_THRESHOLD`:
+   - Auto-ban the user from the group (group/supergroup only)
+   - Log `user_banned` to the actions table
+   - Reset the user's violation count
+   - Announce the ban in the group
+
+**Private chats:** If the bot is used in a private chat (1:1 with the bot), violations are tracked but the user cannot be banned — Telegram doesn't allow banning in private chats. A message is sent explaining this.
+
+**Chat owners:** Telegram prevents banning a group's owner. If a chat owner somehow triggers the threshold, the bot catches the `BadRequest: Can't remove chat owner` error and sends a polite (and slightly awkward) message instead.
 
 ---
 
 ## Violation Lifecycle
 
 ```
-User sends NSFW content
-        │
-        ▼
-Violation count incremented (violations table)
-        │
-        ├─ Count = 1 → Warning: "⚠️ NSFW content detected! Violation 1/3"
-        ├─ Count = 2 → Warning: "⚠️ NSFW content detected! Violation 2/3"
-        └─ Count = 3 → Warning sent
-                    → ban_chat_member() called
-                    → "🚫 [user] has been banned for multiple NSFW violations."
-                    → violation count reset to 0
-                    → admin notification with cached media
+0 violations → user is clean
+1 violation  → warning: "1/3"
+2 violations → warning: "2/3"
+3 violations → banned + count reset to 0
 ```
 
-**Changing the threshold:**
-Set `FLAG_THRESHOLD` in `.env`. For example, `FLAG_THRESHOLD=5` allows 5 violations before ban.
+Admins can manually reset a user's count at any time with `/admin_reset`.
 
 ---
 
-## Admin Workflow
+## Admin Dashboard
 
-### Reviewing Flagged Content
+Start the dashboard server:
 
-When NSFW content is detected, each configured admin receives:
-
-1. A text message: `🚨 NSFW content detected from user [name] (ID: [id]). Violation X/Y.`
-2. The cached flagged media (photo or video) forwarded directly to the admin's private chat.
-
-Flagged files are also saved to disk:
-- Images: `flagged_images/user_{id}_{timestamp}.jpg`
-- Videos: `flagged_videos/user_{id}_{timestamp}.mp4` or `.gif`
-
-### Handling False Positives
-
-If a user is incorrectly flagged:
-
-1. Use `/admin_reset <user_id>` to clear their violation count.
-2. The original message has already been deleted — you cannot restore it.
-3. Consider informing the user that the moderation was a false positive.
-
-### Manual Ban
-
-If you need to ban a user for reasons other than NSFW content (e.g., spam, harassment):
-
-```
-/admin_ban <user_id>
-```
-
-This issues a direct `ban_chat_member` API call and does **not** require any violations on record.
-
----
-
-## Dashboard Guide
-
-Start the dashboard:
 ```bash
 python dashboard.py
 ```
 
-Open [http://localhost:5000](http://localhost:5000).
+Open `http://localhost:5000`.
 
-### Status Cards
+### What you'll see
 
-The top row shows five live counters:
+**Status Cards (top row):**
+- Total Scanned
+- Total NSFW Detected
+- Total SFW
+- Total Violations
+- Total Users Banned
 
-| Card | What it shows |
-|---|---|
-| **Total Scanned** | All media items processed since the database was created |
-| **NSFW Detected** | Items classified as NSFW |
-| **SFW Detected** | Items classified as safe |
-| **Users Banned** | Total ban events |
-| **Current Violations** | Total accumulated violation increments |
+**Charts:**
+- Content type breakdown (images vs videos)
+- Violation timeline
+- Action log table
 
-### Charts
+**Live updates:**
+The dashboard connects via Socket.IO. Stats refresh every 10 seconds automatically — no page reload needed. When the bot processes something, it shows up on the dashboard within the next refresh cycle.
 
-| Chart | Type | Description |
-|---|---|---|
-| **Action Trend** | Line | Number of moderation actions per timestamp |
-| **Content Breakdown** | Bar | SFW vs NSFW totals side-by-side |
-| **Actions Distribution** | Doughnut | Share of each action type (content_removed, user_banned) |
-| **Stats Overview** | Horizontal bar | All five stat counters in one view |
-| **Analytics Comparison** | Multi-line | NSFW, SFW, and bans plotted over time |
+### API Endpoints
 
-### Live Updates
+You can also hit the REST API directly if you want to build your own tooling:
 
-The dashboard auto-refreshes every **10 seconds** via Socket.IO. No manual page refresh is needed.
-
-### Action Trend Chart — Zoom
-
-The Action Trend chart supports:
-- **Mouse wheel** — zoom in/out on the time axis
-- **Click and drag** — pan left/right
-- **Pinch** — zoom on touch devices
-
----
-
-## Statistics Explained
-
-| Statistic | DB key | Description |
-|---|---|---|
-| Total Scanned | `total_contents_scanned` | Incremented for every photo, video, or GIF processed |
-| NSFW Detected | `total_nsfw_detected` | Incremented when classifier returns `nsfw` |
-| SFW | `total_sfw` | Incremented when classifier returns `normal` |
-| Users Banned | `total_users_banned` | Incremented at auto-ban (not at `/admin_ban`) |
-| Violations | `total_violations` | Incremented with every call to `add_violation()` |
-
-> `total_contents_scanned` should equal `total_nsfw_detected + total_sfw` (plus any errors).
-
----
-
-## Adjusting Sensitivity
-
-### Change the Violation Threshold
-
-In `.env`:
-```env
-FLAG_THRESHOLD=5
+```
+GET /api/stats         → {"total_contents_scanned": 42, ...}
+GET /api/actions       → [{id, user_id, action, timestamp}, ...]
+GET /api/all_data      → {stats, violations, actions, content_types}
 ```
 
-Restart the bot for the change to take effect.
-
-### Change the Video Frame Count
-
-The number of sampled frames is set in `handle_video()`:
-```python
-results = analyzer.analyze_video(
-    video_path=temp_path,
-    num_frames=6,          # increase for higher accuracy, decrease for speed
-    stop_on_nsfw=True,
-    nsfw_threshold=0.5
-)
-```
-
-To change it without modifying source code, this could be made an environment variable in a future release (see [Roadmap](Roadmap.md)).
-
-### Change the NSFW Confidence Threshold
-
-The `nsfw_threshold=0.5` parameter in `analyze_video()` controls the minimum confidence score for video frames to be flagged. The image pipeline uses the model's top-1 label directly (no threshold applied — `label.lower() == "nsfw"` check only). Both can be made configurable via environment variables.
-
 ---
 
-## Edge Cases & Behaviour Notes
+## Tuning Behavior
 
-| Scenario | Behaviour |
+All behavior is configurable via `.env`:
+
+| Setting | Effect |
 |---|---|
-| Bot is not group admin | Cannot delete messages or ban users; will log errors |
-| User is the chat owner | Ban attempt fails gracefully; warning is sent instead |
-| Bot used in private chat | Warning and violation tracking work; ban is not possible in private chats |
-| Same user in multiple groups | Violation count is global — violations in any group count towards the threshold |
-| Bot restarts | All violation counts, stats, and audit logs are preserved in SQLite |
-| Model download fails | Bot refuses to start with a clear error message |
-| ADMIN_IDS not set | Bot starts with a warning; no admin notifications will be sent |
-| Very long video | Only 6 frames are sampled regardless of duration |
-| Animated stickers | Currently not handled (no `filters.Sticker` handler) |
+| `FLAG_THRESHOLD=5` | User needs 5 strikes before ban (less aggressive) |
+| `FLAG_THRESHOLD=1` | One strike and you're out (zero tolerance) |
+| `FLAGGED_IMAGES_DIR=/mnt/storage/flagged` | Store cached media on a different volume |
+
+The model confidence threshold (50%) is currently hardcoded in `artemis_bot.py` and `VideoContentAnalyzer.analyze_video()`. To change it, modify `nsfw_threshold` in the `handle_video()` call or the `score` comparison in `handle_image()`.
