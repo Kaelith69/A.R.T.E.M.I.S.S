@@ -155,22 +155,7 @@ It also ships a real-time Flask dashboard because admins deserve to watch statis
 
 ---
 
-## 🎬 Live Demo
 
-> Place demo GIF here: `assets/demo.gif`
-
-![Demo](assets/demo.gif)
-
-**The GIF should show:**
-- A user sending an image to a Telegram group
-- A.R.T.E.M.I.S.S. deleting the message instantly
-- The bot sending a warning message with violation count
-- The admin dashboard updating in real-time
-- (Bonus) The ban hammer dropping at violation threshold
-
-*No GIF in the repo yet? Record a quick terminal session or screen capture of the bot in action and drop it at `assets/demo.gif`. Keep it under 5MB — nobody needs a cinematic experience to understand how banning works.*
-
----
 
 ## 🧠 System Overview
 
