@@ -1,312 +1,221 @@
 # Installation
 
-Complete installation guide for A.R.T.E.M.I.S.S. covering all supported platforms.
-
----
-
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Platform-Specific Instructions](#platform-specific-instructions)
-  - [Linux / macOS](#linux--macos)
-  - [Windows](#windows)
-- [GPU Setup (Optional)](#gpu-setup-optional)
-- [Configuration](#configuration)
-- [Database Initialisation](#database-initialisation)
-- [Running the Bot](#running-the-bot)
-- [Running the Dashboard](#running-the-dashboard)
-- [Running as a Service (Linux)](#running-as-a-service-linux)
-- [Verifying the Installation](#verifying-the-installation)
-- [Uninstalling](#uninstalling)
+Complete installation guide for A.R.T.E.M.I.S.S. on Linux, macOS, and Windows.
 
 ---
 
 ## Prerequisites
 
-| Requirement | Minimum Version | Notes |
-|---|---|---|
-| Python | 3.10 | Required for `set[int]` and `X \| Y` union type syntax |
-| pip | 23.0+ | Comes with Python; upgrade with `pip install --upgrade pip` |
-| Telegram Bot Token | — | Create with [@BotFather](https://t.me/BotFather) |
-| Admin user IDs | — | Your Telegram numeric user ID (use [@userinfobot](https://t.me/userinfobot)) |
-| Group admin permissions | — | Bot needs *Delete Messages* + *Ban Users* |
-| Disk space | ~2 GB | For the ViT model weights (downloaded once) |
-| RAM | 2 GB minimum | 4 GB recommended for smooth CPU inference |
+Before you start, make sure you have:
+
+- **Python 3.10 or newer** — check with `python --version` or `python3 --version`
+- **pip** — should come with Python; check with `pip --version`
+- **A Telegram bot token** — get one from [@BotFather](https://t.me/BotFather) with `/newbot`
+- **Your Telegram user ID** — use [@userinfobot](https://t.me/userinfobot) to find it
+- **~500MB disk space** — ~350MB for the Falconsai ViT model + your data
+- **Internet access** for the initial model download (subsequent starts use the local cache)
+
+Optional but recommended:
+- A CUDA-capable NVIDIA GPU — inference is *dramatically* faster. Without it the bot still works, just slower.
+- A Linux server or a machine that can run persistently
 
 ---
 
-## Platform-Specific Instructions
-
-### Linux / macOS
+## Step 1 — Get the Code
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Kaelith69/A.R.T.E.M.I.S.S.git
 cd A.R.T.E.M.I.S.S
-
-# 2. Create and activate a virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# 3. Upgrade pip
-pip install --upgrade pip
-
-# 4. Install dependencies
-pip install -r requirements.txt
-
-# 5. Set up configuration
-cp .env.example .env
-# Edit .env with your values (see Configuration section below)
-
-# 6. Initialise the database
-python setup_db.py
-
-# 7. Run the bot
-python artemis_bot.py
 ```
 
-### Windows
+Don't have git? Download the zip from the GitHub releases page and unzip it.
 
+---
+
+## Step 2 — Create a Virtual Environment
+
+This is not optional. Don't pollute your system Python. Future you will thank present you.
+
+**Linux / macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**Windows (PowerShell):**
 ```powershell
-# 1. Clone the repository
-git clone https://github.com/Kaelith69/A.R.T.E.M.I.S.S.git
-cd A.R.T.E.M.I.S.S
-
-# 2. Create and activate a virtual environment
 python -m venv venv
-venv\Scripts\activate
-
-# 3. Upgrade pip
-pip install --upgrade pip
-
-# 4. Install dependencies
-pip install -r requirements.txt
-
-# 5. Set up configuration
-copy .env.example .env
-# Edit .env with Notepad or VS Code
-
-# 6. Initialise the database
-python setup_db.py
-
-# 7. Run the bot
-python artemis_bot.py
+.\venv\Scripts\Activate.ps1
 ```
 
-> **Windows note:** If `opencv-python-headless` fails to install, try `opencv-python` as a fallback (adds GUI dependencies but works on Windows).
+**Windows (Command Prompt):**
+```cmd
+python -m venv venv
+venv\Scripts\activate.bat
+```
+
+You should see `(venv)` in your terminal prompt when the environment is active.
 
 ---
 
-## GPU Setup (Optional)
-
-By default, the bot uses CPU inference. To enable GPU acceleration with CUDA:
+## Step 3 — Install Dependencies
 
 ```bash
-# Deactivate current venv if active
-deactivate
-
-# Recreate venv (optional but clean)
-python3 -m venv venv
-source venv/bin/activate
-
-# Install PyTorch with CUDA 12.1 support
-pip install torch --index-url https://download.pytorch.org/whl/cu121
-
-# Then install remaining requirements
 pip install -r requirements.txt
 ```
 
-Visit [pytorch.org/get-started](https://pytorch.org/get-started/locally/) to choose the correct CUDA version for your GPU driver.
+This installs:
+- `python-telegram-bot` — the Telegram API client
+- `torch` — PyTorch for model inference
+- `transformers` — HuggingFace Transformers (Falconsai model)
+- `Pillow` — image handling
+- `opencv-python-headless` — video frame extraction
+- `Flask` + `flask-socketio` — the admin dashboard
+- `python-dotenv` — `.env` file loading
 
-The bot automatically detects CUDA at runtime:
-```python
-_device = 0 if torch.cuda.is_available() else -1
-```
+> ⏳ PyTorch is a large install (~1.5GB depending on platform/CUDA version). Grab a beverage.
 
-No configuration change is needed — GPU is used automatically when available.
+### For GPU support (CUDA)
+
+If you have an NVIDIA GPU and want to use it, install the CUDA-enabled version of PyTorch. The default `requirements.txt` installs PyTorch without specifying a CUDA version, which may default to CPU on some platforms. Check the [PyTorch install matrix](https://pytorch.org/get-started/locally/) for your specific CUDA version.
+
+The bot automatically detects CUDA at startup via `torch.cuda.is_available()`.
 
 ---
 
-## Configuration
+## Step 4 — Configure the Bot
 
-Copy the example file and fill in your values:
+Copy the example config and edit it:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env`:
+Open `.env` in your editor:
 
 ```env
-# ── REQUIRED ────────────────────────────────────────────
-# Your Telegram bot token from @BotFather
-BOT_TOKEN=1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Required — get this from @BotFather on Telegram
+BOT_TOKEN=your_telegram_bot_token_here
 
-# Comma-separated Telegram user IDs of administrators
-# Find your ID via @userinfobot on Telegram
-ADMIN_IDS=123456789,987654321
+# Required — your Telegram user ID (or multiple, comma-separated)
+# Use @userinfobot to find yours
+ADMIN_IDS=123456789
 
-# ── OPTIONAL ────────────────────────────────────────────
-# Number of violations before a user is auto-banned (default: 3)
+# Optional — how many violations before a user is banned (default: 3)
 FLAG_THRESHOLD=3
 
-# Path to the SQLite database file (default: violations.db)
+# Optional — paths can be left as defaults
 DB_FILE=violations.db
-
-# Directories for caching flagged media (created automatically)
 FLAGGED_IMAGES_DIR=flagged_images
 FLAGGED_VIDEOS_DIR=flagged_videos
 
-# Flask dashboard secret key (auto-generated if omitted)
+# Optional — leave blank for auto-generated (fine for local use)
 DASHBOARD_SECRET_KEY=change_me_to_a_long_random_string
 ```
 
-### Getting Your Bot Token
+**The bot will refuse to start without `BOT_TOKEN`.**
 
-1. Open Telegram and search for [@BotFather](https://t.me/BotFather)
-2. Send `/newbot`
-3. Choose a name and username for your bot
-4. Copy the token that BotFather provides
-
-### Getting Your Admin Telegram User ID
-
-1. Open Telegram and search for [@userinfobot](https://t.me/userinfobot)
-2. Start a conversation — it will reply with your numeric user ID
-3. Add that number to `ADMIN_IDS`
+If `ADMIN_IDS` is empty, a warning is printed at startup and no admin will receive NSFW notifications — the bot still moderates, but silently.
 
 ---
 
-## Database Initialisation
+## Step 5 — Initialize the Database
 
 ```bash
 python setup_db.py
 ```
 
-Expected output:
-```
-Database 'violations.db' initialised successfully.
-```
-
-This creates the `violations.db` file with all four tables and seeds the initial stat counters. The script is **idempotent** — running it multiple times is safe and will not delete existing data.
+This creates `violations.db` with all required tables and initial stats counters. It's safe to run multiple times — all operations are `IF NOT EXISTS` / `INSERT OR IGNORE`.
 
 ---
 
-## Running the Bot
+## Step 6 — Start the Bot
 
 ```bash
 python artemis_bot.py
 ```
 
-On first run, the HuggingFace model weights (~330 MB) are downloaded and cached in `~/.cache/huggingface/`. Subsequent starts are fast.
+On first run, you'll see something like:
 
-Expected startup output:
 ```
-INFO - Loading model Falconsai/nsfw_image_detection...
-INFO - VideoContentAnalyzer initialized using model: Falconsai/nsfw_image_detection
-INFO - 🚀 Bot is starting...
-INFO - Application started
+Downloading model: Falconsai/nsfw_image_detection ...
+...
+VideoContentAnalyzer initialized using model: Falconsai/nsfw_image_detection
+🚀 Bot is starting...
 ```
 
-The bot will now monitor any Telegram groups it has been added to as admin.
+After the model downloads, the bot connects to Telegram and starts long-polling. You'll see `Bot is starting...` when it's ready.
 
 ---
 
-## Running the Dashboard
+## Step 7 — Add the Bot to Your Group
 
-In a separate terminal (with the same virtual environment activated):
+1. Open Telegram, find your bot by its username
+2. Add it to the group you want to moderate
+3. Promote it to **Group Admin** with these permissions:
+   - ✅ Delete messages
+   - ✅ Ban users
+4. Send `/start` in the group to verify it's alive
+
+---
+
+## Step 8 — (Optional) Start the Dashboard
+
+In a second terminal (with the venv activated):
 
 ```bash
 python dashboard.py
 ```
 
-Then open [http://localhost:5000](http://localhost:5000) in your browser.
-
-> **Note:** The dashboard and bot share the same `violations.db` file. Both can run simultaneously without conflict.
+Open `http://localhost:5000` in your browser. You'll see live stats from the bot.
 
 ---
 
-## Running as a Service (Linux)
+## Running on a Server
 
-For production deployments, run the bot as a `systemd` service so it restarts automatically on failure and survives reboots.
+For persistent operation on a Linux server, use a process manager.
 
-### Bot service: `/etc/systemd/system/artemis-bot.service`
+### systemd (recommended for Linux)
+
+Create `/etc/systemd/system/artemiss.service`:
 
 ```ini
 [Unit]
-Description=A.R.T.E.M.I.S.S. Telegram Bot
+Description=A.R.T.E.M.I.S.S. Telegram Moderation Bot
 After=network.target
 
 [Service]
 Type=simple
-User=YOUR_LINUX_USERNAME
+User=your_user
 WorkingDirectory=/path/to/A.R.T.E.M.I.S.S
-EnvironmentFile=/path/to/A.R.T.E.M.I.S.S/.env
 ExecStart=/path/to/A.R.T.E.M.I.S.S/venv/bin/python artemis_bot.py
-Restart=always
+Restart=on-failure
 RestartSec=10
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Dashboard service: `/etc/systemd/system/artemis-dashboard.service`
-
-```ini
-[Unit]
-Description=A.R.T.E.M.I.S.S. Dashboard
-After=network.target
-
-[Service]
-Type=simple
-User=YOUR_LINUX_USERNAME
-WorkingDirectory=/path/to/A.R.T.E.M.I.S.S
 EnvironmentFile=/path/to/A.R.T.E.M.I.S.S/.env
-ExecStart=/path/to/A.R.T.E.M.I.S.S/venv/bin/python dashboard.py
-Restart=always
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 ```
 
 ```bash
-# Enable and start
 sudo systemctl daemon-reload
-sudo systemctl enable artemis-bot artemis-dashboard
-sudo systemctl start artemis-bot artemis-dashboard
-
-# Check status
-sudo systemctl status artemis-bot
-sudo journalctl -u artemis-bot -f
+sudo systemctl enable artemiss
+sudo systemctl start artemiss
+sudo systemctl status artemiss
 ```
 
----
-
-## Verifying the Installation
-
-1. **Bot responds to commands:** Open Telegram, find your bot, send `/start` — it should reply with a welcome message.
-2. **Bot moderates media:** Send a safe image in a monitored group — the bot should process it silently (nothing happens for SFW content).
-3. **Dashboard loads:** Open `http://localhost:5000` — the loading spinner should disappear and show the stats cards.
-4. **Database exists:** `ls -la violations.db` should show the file.
-
----
-
-## Uninstalling
+### tmux / screen (quick and dirty)
 
 ```bash
-# Stop the bot process (Ctrl+C or kill the process)
-
-# Deactivate the virtual environment
-deactivate
-
-# Remove the project directory
-cd ..
-rm -rf A.R.T.E.M.I.S.S
-
-# Remove cached HuggingFace model weights (optional, ~330 MB)
-rm -rf ~/.cache/huggingface/hub/models--Falconsai--nsfw_image_detection
+tmux new-session -d -s artemiss 'cd /path/to/A.R.T.E.M.I.S.S && source venv/bin/activate && python artemis_bot.py'
 ```
+
+---
+
+## Verifying Installation
+
+Send a test image to your group (a SFW one). The bot should:
+- Process it silently (no response for clean content)
+- Log `Image analysis - User: ..., Label: normal, Confidence: ...` in the console
+
+Send `/stats` in the group — you should see `Total Scanned: 1`.

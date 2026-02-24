@@ -1,653 +1,600 @@
 <div align="center">
 
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                    SVG HERO BANNER                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260">
   <defs>
     <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#12082a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#060d1f;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="50%" style="stop-color:#12082a"/>
+      <stop offset="100%" style="stop-color:#060d1f"/>
     </linearGradient>
     <linearGradient id="heroAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#2563EB;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="50%" style="stop-color:#2563EB"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
     </linearGradient>
     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
     </linearGradient>
     <filter id="heroGlow">
       <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
       <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="subtleGlow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
       <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <!-- Grid pattern -->
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#7C3AED" stroke-width="0.3" stroke-opacity="0.15"/>
-    </pattern>
   </defs>
+
   <!-- Background -->
   <rect width="900" height="260" fill="url(#heroBg)" rx="16"/>
-  <!-- Grid overlay -->
-  <rect width="900" height="260" fill="url(#grid)" rx="16"/>
-  <!-- Top accent bar -->
-  <rect x="0" y="0" width="900" height="4" fill="url(#heroAccent)" rx="2"/>
-  <!-- Bottom accent bar -->
-  <rect x="0" y="256" width="900" height="4" fill="url(#heroAccent)" rx="2"/>
-  <!-- Decorative circles (background nodes) -->
-  <circle cx="820" cy="50" r="60" fill="#7C3AED" fill-opacity="0.05" stroke="#7C3AED" stroke-width="0.5" stroke-opacity="0.2"/>
-  <circle cx="820" cy="50" r="35" fill="#7C3AED" fill-opacity="0.07" stroke="#7C3AED" stroke-width="0.5" stroke-opacity="0.3"/>
-  <circle cx="80" cy="210" r="50" fill="#06B6D4" fill-opacity="0.04" stroke="#06B6D4" stroke-width="0.5" stroke-opacity="0.2"/>
-  <!-- Shield symbol (left) -->
-  <g transform="translate(72, 80)">
-    <!-- Shield body -->
-    <path d="M0,0 L50,0 L50,55 Q25,75 0,55 Z" fill="url(#shieldGrad)" fill-opacity="0.25" stroke="url(#shieldGrad)" stroke-width="1.5" filter="url(#heroGlow)"/>
-    <!-- Shield inner check -->
-    <path d="M12,28 L22,38 L38,18" stroke="#06B6D4" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#subtleGlow)"/>
-    <!-- Eye symbol inside shield -->
-    <ellipse cx="25" cy="30" rx="10" ry="6" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity="0.6"/>
-    <circle cx="25" cy="30" r="3" fill="#7C3AED" opacity="0.8"/>
+
+  <!-- Grid lines (subtle) -->
+  <g stroke="#7C3AED" stroke-opacity="0.08" stroke-width="1">
+    <line x1="0" y1="40"  x2="900" y2="40"/>
+    <line x1="0" y1="80"  x2="900" y2="80"/>
+    <line x1="0" y1="120" x2="900" y2="120"/>
+    <line x1="0" y1="160" x2="900" y2="160"/>
+    <line x1="0" y1="200" x2="900" y2="200"/>
+    <line x1="0" y1="240" x2="900" y2="240"/>
+    <line x1="90"  y1="0" x2="90"  y2="260"/>
+    <line x1="180" y1="0" x2="180" y2="260"/>
+    <line x1="270" y1="0" x2="270" y2="260"/>
+    <line x1="360" y1="0" x2="360" y2="260"/>
+    <line x1="450" y1="0" x2="450" y2="260"/>
+    <line x1="540" y1="0" x2="540" y2="260"/>
+    <line x1="630" y1="0" x2="630" y2="260"/>
+    <line x1="720" y1="0" x2="720" y2="260"/>
+    <line x1="810" y1="0" x2="810" y2="260"/>
   </g>
+
+  <!-- Accent bar top -->
+  <rect x="0" y="0" width="900" height="5" fill="url(#heroAccent)" rx="0"/>
+
+  <!-- Shield icon -->
+  <g transform="translate(68, 90)" filter="url(#heroGlow)">
+    <path d="M44 0 L88 18 L88 56 C88 80 66 96 44 104 C22 96 0 80 0 56 L0 18 Z"
+          fill="url(#shieldGrad)" opacity="0.9"/>
+    <path d="M44 20 L70 30 L70 54 C70 68 58 78 44 84 C30 78 18 68 18 54 L18 30 Z"
+          fill="none" stroke="#ffffff" stroke-width="2" opacity="0.4"/>
+    <!-- Eye in shield -->
+    <ellipse cx="44" cy="54" rx="14" ry="9" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.9"/>
+    <circle cx="44" cy="54" r="5" fill="#06B6D4"/>
+    <circle cx="46" cy="52" r="1.5" fill="#ffffff" opacity="0.8"/>
+  </g>
+
   <!-- Main title -->
-  <text x="460" y="88" font-family="'Courier New', Courier, monospace" font-size="40" font-weight="bold" fill="#ffffff" text-anchor="middle" filter="url(#heroGlow)" letter-spacing="3">A.R.T.E.M.I.S.S.</text>
-  <!-- Gradient underline -->
-  <rect x="200" y="97" width="520" height="2" fill="url(#heroAccent)" rx="1" opacity="0.7"/>
+  <text x="185" y="90" font-family="'Courier New', monospace" font-size="44" font-weight="bold"
+        fill="url(#heroAccent)" filter="url(#textGlow)">A.R.T.E.M.I.S.S.</text>
+
   <!-- Subtitle line 1 -->
-  <text x="460" y="122" font-family="'Courier New', Courier, monospace" font-size="12" fill="#a78bfa" text-anchor="middle" letter-spacing="1">Automated Review for Telegram Environments</text>
+  <text x="185" y="120" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">
+    Automated Review for Telegram Environments:
+  </text>
   <!-- Subtitle line 2 -->
-  <text x="460" y="140" font-family="'Courier New', Courier, monospace" font-size="12" fill="#93c5fd" text-anchor="middle" letter-spacing="1">Monitoring Inappropriate Submissions System</text>
-  <!-- Tag pills -->
-  <rect x="190" y="162" width="90" height="24" rx="12" fill="#7C3AED" fill-opacity="0.18" stroke="#7C3AED" stroke-width="1"/>
-  <text x="235" y="178" font-family="monospace" font-size="10" fill="#a78bfa" text-anchor="middle" font-weight="bold">🤖 Telegram Bot</text>
-  <rect x="294" y="162" width="72" height="24" rx="12" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1"/>
-  <text x="330" y="178" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle" font-weight="bold">AI / ML</text>
-  <rect x="380" y="162" width="96" height="24" rx="12" fill="#06B6D4" fill-opacity="0.18" stroke="#06B6D4" stroke-width="1"/>
-  <text x="428" y="178" font-family="monospace" font-size="10" fill="#67e8f9" text-anchor="middle" font-weight="bold">Python 3.10+</text>
-  <rect x="490" y="162" width="72" height="24" rx="12" fill="#7C3AED" fill-opacity="0.18" stroke="#7C3AED" stroke-width="1"/>
-  <text x="526" y="178" font-family="monospace" font-size="10" fill="#a78bfa" text-anchor="middle" font-weight="bold">HuggingFace</text>
-  <rect x="576" y="162" width="76" height="24" rx="12" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1"/>
-  <text x="614" y="178" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle" font-weight="bold">MIT License</text>
-  <!-- Tagline -->
-  <text x="460" y="220" font-family="monospace" font-size="11" fill="#6b7280" text-anchor="middle" font-style="italic">AI-powered NSFW content moderation for Telegram groups — zero manual review required</text>
-  <!-- Corner decorations -->
-  <line x1="16" y1="16" x2="40" y2="16" stroke="#7C3AED" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="16" y1="16" x2="16" y2="40" stroke="#7C3AED" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="884" y1="16" x2="860" y2="16" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="884" y1="16" x2="884" y2="40" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="16" y1="244" x2="40" y2="244" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="16" y1="244" x2="16" y2="220" stroke="#06B6D4" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="884" y1="244" x2="860" y2="244" stroke="#7C3AED" stroke-width="1.5" stroke-opacity="0.6"/>
-  <line x1="884" y1="244" x2="884" y2="220" stroke="#7C3AED" stroke-width="1.5" stroke-opacity="0.6"/>
+  <text x="185" y="138" font-family="'Courier New', monospace" font-size="13" fill="#94a3b8">
+    Monitoring Inappropriate Submissions System
+  </text>
+
+  <!-- Divider -->
+  <rect x="185" y="150" width="560" height="2" fill="url(#heroAccent)" opacity="0.5"/>
+
+  <!-- Tag line -->
+  <text x="185" y="172" font-family="'Courier New', monospace" font-size="12" fill="#7C3AED">
+    🤖 AI-Powered NSFW Moderation Bot for Telegram Groups
+  </text>
+
+  <!-- Tech pills -->
+  <rect x="185" y="188" width="70"  height="22" rx="11" fill="#7C3AED" opacity="0.3"/>
+  <text x="220"  y="203" font-family="monospace" font-size="10" fill="#c4b5fd" text-anchor="middle">Python</text>
+
+  <rect x="263" y="188" width="80"  height="22" rx="11" fill="#2563EB" opacity="0.3"/>
+  <text x="303"  y="203" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle">PyTorch</text>
+
+  <rect x="351" y="188" width="110" height="22" rx="11" fill="#06B6D4" opacity="0.3"/>
+  <text x="406"  y="203" font-family="monospace" font-size="10" fill="#67e8f9" text-anchor="middle">Transformers</text>
+
+  <rect x="469" y="188" width="68"  height="22" rx="11" fill="#7C3AED" opacity="0.3"/>
+  <text x="503"  y="203" font-family="monospace" font-size="10" fill="#c4b5fd" text-anchor="middle">Flask</text>
+
+  <rect x="545" y="188" width="72"  height="22" rx="11" fill="#2563EB" opacity="0.3"/>
+  <text x="581"  y="203" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle">SQLite</text>
+
+  <rect x="625" y="188" width="78"  height="22" rx="11" fill="#06B6D4" opacity="0.3"/>
+  <text x="664"  y="203" font-family="monospace" font-size="10" fill="#67e8f9" text-anchor="middle">Telegram</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="250" width="900" height="10" fill="url(#heroAccent)" rx="0" opacity="0.4"/>
+
+  <!-- Pulse dots -->
+  <circle cx="820" cy="90" r="5" fill="#06B6D4" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.2;0.9" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="840" cy="90" r="5" fill="#2563EB" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="860" cy="90" r="5" fill="#7C3AED" opacity="0.4">
+    <animate attributeName="opacity" values="0.4;0.05;0.4" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
 </svg>
 
 </div>
 
+---
+
+## 🤖 What Even Is This?
+
+Imagine you're running a Telegram group. It's going great. Community vibes, wholesome memes, nice people.
+
+Then *that one person* shows up.
+
+**A.R.T.E.M.I.S.S.** is the bouncer you never had to hire. It watches every image, video, and GIF that lands in your group, feeds it through a Vision Transformer AI model, and if something NSFW slips through — *poof*, deleted. The sender gets a warning, admins get notified, and after a configurable number of violations, the user gets the ban hammer.
+
+No human moderators needed. No false positives from rules-based keyword matching. Just cold, efficient, AI-powered judgment staring at your pixels 24/7 while you sleep.
+
+It also ships a real-time Flask dashboard because admins deserve to watch statistics go up as much as the next person.
+
+---
+
+## 📊 Badges
+
 <div align="center">
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-ffca28?style=flat-square&logo=huggingface&logoColor=black)](https://huggingface.co/Falconsai/nsfw_image_detection)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![Telegram](https://img.shields.io/badge/Telegram-Bot_API-26a5e4?style=flat-square&logo=telegram&logoColor=white)](https://core.telegram.org/bots)
-[![Flask](https://img.shields.io/badge/Flask-3.0%2B-black?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![SQLite](https://img.shields.io/badge/SQLite-Database-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-7c3aed?style=flat-square)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10%2B-7C3AED?style=for-the-badge&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-2563EB?style=for-the-badge&logo=pytorch&logoColor=white)
+![Telegram](https://img.shields.io/badge/Telegram%20Bot-python--telegram--bot-06B6D4?style=for-the-badge&logo=telegram&logoColor=white)
+![Flask](https://img.shields.io/badge/Dashboard-Flask%20%2B%20Socket.IO-7C3AED?style=for-the-badge&logo=flask&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-2563EB?style=for-the-badge)
+![HuggingFace](https://img.shields.io/badge/Model-Falconsai%2Fnsfw__image__detection-06B6D4?style=for-the-badge&logo=huggingface&logoColor=white)
 
 </div>
 
 ---
 
-**A.R.T.E.M.I.S.S.** is an AI-powered Telegram group moderation bot that automatically detects and removes NSFW (Not Safe For Work) images, videos, and GIFs using state-of-the-art Vision Transformer models. It tracks repeat offenders, notifies administrators in real time, and auto-bans users who exceed a configurable violation threshold — all with zero manual review required.
+## 🎬 Live Demo
+
+> Place demo GIF here: `assets/demo.gif`
+
+![Demo](assets/demo.gif)
+
+**The GIF should show:**
+- A user sending an image to a Telegram group
+- A.R.T.E.M.I.S.S. deleting the message instantly
+- The bot sending a warning message with violation count
+- The admin dashboard updating in real-time
+- (Bonus) The ban hammer dropping at violation threshold
+
+*No GIF in the repo yet? Record a quick terminal session or screen capture of the bot in action and drop it at `assets/demo.gif`. Keep it under 5MB — nobody needs a cinematic experience to understand how banning works.*
 
 ---
 
-## 📋 Table of Contents
+## 🧠 System Overview
 
-- [System Overview](#-system-overview)
-- [Core Capabilities](#-core-capabilities)
-- [Architecture](#-architecture)
-- [Data Flow](#-data-flow)
-- [Technology Stack](#-technology-stack)
-- [Features](#-features)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Configuration Reference](#-configuration-reference)
-- [Bot Commands](#-bot-commands)
-- [Dashboard](#-dashboard)
-- [Database Schema](#-database-schema)
-- [Project Structure](#-project-structure)
-- [Performance](#-performance)
-- [Accessibility](#-accessibility)
-- [Privacy & Security Model](#-privacy--security-model)
-- [Design Principles](#-design-principles)
-- [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
+A.R.T.E.M.I.S.S. is a **server-side Python application** that sits between Telegram's Bot API and your group. Long-polling keeps it perpetually awake, watching every message like a caffeinated raccoon guarding a trash can.
+
+Here's the rough flow:
+
+1. **Media arrives** → bot receives photo/video/GIF event
+2. **Download & classify** → Falconsai ViT model runs on the file (or on sampled frames for video)
+3. **Decision time** → NSFW? Delete + warn + log. SFW? Clean up temp file and move on.
+4. **Threshold check** → violation count ≥ `FLAG_THRESHOLD`? Auto-ban from group.
+5. **Admin notification** → every configured admin gets an alert + the cached flagged media
+6. **Dashboard update** → Flask + Socket.IO pushes live stats to the web UI
+
+Everything is persisted in SQLite. No external services. No cloud dependency. Runs on whatever hardware you have — GPU for speed, CPU for existence.
 
 ---
 
-## 🔭 System Overview
+## ⚡ Features
 
-A.R.T.E.M.I.S.S. operates as a persistent Python process connected to Telegram's Bot API via long-polling. When a user sends media to a monitored group, the bot intercepts the update, classifies the content using a Vision Transformer (ViT) model hosted on HuggingFace, and takes automatic enforcement action based on the result. An independent Flask + Socket.IO dashboard provides administrators with real-time analytics and audit logs without requiring any direct bot interaction.
+| Feature | Details |
+|---|---|
+| 🖼️ **Image NSFW Detection** | Classifies photos via Falconsai ViT pipeline with configurable confidence threshold |
+| 🎬 **Video Frame Analysis** | Samples 6 frames, stops early on first NSFW hit to save compute |
+| 🎭 **GIF / Animation Support** | Handles Telegram animations the same as videos |
+| 🗑️ **Instant Message Deletion** | NSFW content is deleted before the group even notices |
+| 📊 **Violation Tracking** | Per-user violation counts in SQLite, survive bot restarts |
+| 🔨 **Auto-Ban System** | Configurable threshold (default: 3) triggers automatic ban |
+| 👮 **Admin Notifications** | Admins receive DM alerts + the cached flagged media for review |
+| 🗃️ **Media Caching** | Flagged images → `flagged_images/`, videos → `flagged_videos/` |
+| 🖥️ **Real-time Dashboard** | Flask + Socket.IO web UI with live stats and action log |
+| 🛠️ **Admin Commands** | `/admin_flagged`, `/admin_reset`, `/admin_ban` |
+| 📈 **Stats Command** | `/stats` shows total scanned, NSFW detected, banned, etc. |
+| 🐳 **GPU Acceleration** | Auto-detects CUDA, gracefully falls back to CPU |
+| ⚙️ **Config via `.env`** | Everything tunable without touching code |
 
 ---
 
-## 🧠 Core Capabilities
+## 🗺️ Capability Visualization
 
 <div align="center">
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 360" width="820" height="360">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" width="800" height="380">
   <defs>
     <linearGradient id="capBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1"/>
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#0a0a18"/>
     </linearGradient>
-    <linearGradient id="capAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="barGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#7C3AED"/>
-      <stop offset="100%" style="stop-color:#06B6D4"/>
+      <stop offset="100%" style="stop-color:#9d5cf0"/>
     </linearGradient>
-    <filter id="capGlow">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+    <linearGradient id="barGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2563EB"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="barGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06B6D4"/>
+      <stop offset="100%" style="stop-color:#22d3ee"/>
+    </linearGradient>
   </defs>
-  <rect width="820" height="360" fill="url(#capBg)" rx="14"/>
-  <rect x="0" y="0" width="820" height="3" fill="url(#capAccent)" rx="1"/>
-  <text x="410" y="32" font-family="monospace" font-size="14" fill="#a78bfa" text-anchor="middle" font-weight="bold" letter-spacing="2">CORE CAPABILITY MAP</text>
 
-  <!-- Central node -->
-  <circle cx="410" cy="185" r="46" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="2" filter="url(#capGlow)"/>
-  <circle cx="410" cy="185" r="30" fill="#7C3AED" fill-opacity="0.35" stroke="#7C3AED" stroke-width="1.5"/>
-  <text x="410" y="182" font-family="monospace" font-size="9" fill="#e9d5ff" text-anchor="middle" font-weight="bold">A.R.T.E.M.I.S.S</text>
-  <text x="410" y="196" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">Core Engine</text>
+  <rect width="800" height="380" fill="url(#capBg)" rx="12"/>
+  <rect x="0" y="0" width="800" height="4" fill="url(#barGrad1)"/>
 
-  <!-- Satellite nodes with connecting lines -->
-  <!-- Image Detection (top-left) -->
-  <line x1="375" y1="152" x2="215" y2="95" stroke="#7C3AED" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="185" cy="80" r="36" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.5"/>
-  <text x="185" y="76" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle" font-weight="bold">🖼️ Image</text>
-  <text x="185" y="90" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle">Detection</text>
+  <text x="400" y="35" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="16" font-weight="bold" fill="#e2e8f0">Capability Overview</text>
 
-  <!-- Video Analysis (top-right) -->
-  <line x1="445" y1="152" x2="605" y2="95" stroke="#7C3AED" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="635" cy="80" r="36" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.5"/>
-  <text x="635" y="76" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle" font-weight="bold">🎬 Video</text>
-  <text x="635" y="90" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle">Analysis</text>
+  <!-- Labels -->
+  <text x="160" y="72" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Image Detection</text>
+  <text x="160" y="107" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Video Analysis</text>
+  <text x="160" y="142" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Auto Moderation</text>
+  <text x="160" y="177" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Admin Alerts</text>
+  <text x="160" y="212" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Violation Tracking</text>
+  <text x="160" y="247" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Auto-Ban Engine</text>
+  <text x="160" y="282" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">Dashboard UI</text>
+  <text x="160" y="317" text-anchor="end" font-family="monospace" font-size="11" fill="#94a3b8">GPU Acceleration</text>
 
-  <!-- Violation Engine (left) -->
-  <line x1="364" y1="185" x2="228" y2="185" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="192" cy="185" r="36" fill="#06B6D4" fill-opacity="0.15" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="192" y="181" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">⚠️ Violation</text>
-  <text x="192" y="195" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">Tracking</text>
+  <!-- Bars -->
+  <rect x="170" y="57" width="555" height="22" rx="4" fill="url(#barGrad1)" opacity="0.9"/>
+  <rect x="170" y="92" width="490" height="22" rx="4" fill="url(#barGrad2)" opacity="0.9"/>
+  <rect x="170" y="127" width="540" height="22" rx="4" fill="url(#barGrad1)" opacity="0.9"/>
+  <rect x="170" y="162" width="520" height="22" rx="4" fill="url(#barGrad3)" opacity="0.9"/>
+  <rect x="170" y="197" width="505" height="22" rx="4" fill="url(#barGrad2)" opacity="0.9"/>
+  <rect x="170" y="232" width="535" height="22" rx="4" fill="url(#barGrad1)" opacity="0.9"/>
+  <rect x="170" y="267" width="460" height="22" rx="4" fill="url(#barGrad3)" opacity="0.9"/>
+  <rect x="170" y="302" width="480" height="22" rx="4" fill="url(#barGrad2)" opacity="0.9"/>
 
-  <!-- Auto-Ban (right) -->
-  <line x1="456" y1="185" x2="592" y2="185" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="628" cy="185" r="36" fill="#06B6D4" fill-opacity="0.15" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="628" y="181" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">🚫 Auto-Ban</text>
-  <text x="628" y="195" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">Engine</text>
+  <!-- Bar labels -->
+  <text x="735" y="72" font-family="monospace" font-size="10" fill="#c4b5fd">ViT Model ✓</text>
+  <text x="670" y="107" font-family="monospace" font-size="10" fill="#93c5fd">6-frame sampling ✓</text>
+  <text x="720" y="142" font-family="monospace" font-size="10" fill="#c4b5fd">delete + warn ✓</text>
+  <text x="700" y="177" font-family="monospace" font-size="10" fill="#67e8f9">DM + media ✓</text>
+  <text x="685" y="212" font-family="monospace" font-size="10" fill="#93c5fd">SQLite persist ✓</text>
+  <text x="715" y="247" font-family="monospace" font-size="10" fill="#c4b5fd">configurable ✓</text>
+  <text x="640" y="282" font-family="monospace" font-size="10" fill="#67e8f9">Flask + Socket.IO ✓</text>
+  <text x="660" y="317" font-family="monospace" font-size="10" fill="#93c5fd">CUDA / CPU ✓</text>
 
-  <!-- Admin Notify (bottom-left) -->
-  <line x1="375" y1="218" x2="215" y2="275" stroke="#7C3AED" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="185" cy="290" r="36" fill="#7C3AED" fill-opacity="0.18" stroke="#7C3AED" stroke-width="1.5"/>
-  <text x="185" y="286" font-family="monospace" font-size="9" fill="#c4b5fd" text-anchor="middle" font-weight="bold">📣 Admin</text>
-  <text x="185" y="300" font-family="monospace" font-size="9" fill="#c4b5fd" text-anchor="middle">Notifications</text>
-
-  <!-- Dashboard (bottom-right) -->
-  <line x1="445" y1="218" x2="605" y2="275" stroke="#7C3AED" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.6"/>
-  <circle cx="635" cy="290" r="36" fill="#7C3AED" fill-opacity="0.18" stroke="#7C3AED" stroke-width="1.5"/>
-  <text x="635" y="286" font-family="monospace" font-size="9" fill="#c4b5fd" text-anchor="middle" font-weight="bold">📊 Real-Time</text>
-  <text x="635" y="300" font-family="monospace" font-size="9" fill="#c4b5fd" text-anchor="middle">Dashboard</text>
-
-  <!-- Bottom label -->
-  <text x="410" y="345" font-family="monospace" font-size="10" fill="#4b5563" text-anchor="middle">ViT-based classification · SQLite persistence · Flask + Socket.IO analytics</text>
+  <!-- Bottom note -->
+  <text x="400" y="358" text-anchor="middle" font-family="monospace" font-size="10" fill="#475569">
+    All features operational in current release
+  </text>
 </svg>
 
 </div>
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Diagram
 
 <div align="center">
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 420" width="820" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="800" height="480">
   <defs>
     <linearGradient id="archBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1"/>
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#080814"/>
     </linearGradient>
-    <linearGradient id="archAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#7C3AED"/>
-      <stop offset="100%" style="stop-color:#06B6D4"/>
-    </linearGradient>
-    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#2563EB"/>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2563EB"/>
     </marker>
-    <marker id="arrowCyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#06B6D4"/>
+    <marker id="arrowCyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#06B6D4"/>
     </marker>
-    <marker id="arrowPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#7C3AED"/>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7C3AED"/>
     </marker>
   </defs>
-  <rect width="820" height="420" fill="url(#archBg)" rx="14"/>
-  <rect x="0" y="0" width="820" height="3" fill="url(#archAccent)" rx="1"/>
-  <text x="410" y="28" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle" font-weight="bold" letter-spacing="2">SYSTEM ARCHITECTURE</text>
 
-  <!-- Layer labels -->
-  <text x="14" y="72" font-family="monospace" font-size="9" fill="#6b7280" transform="rotate(-90, 14, 72)" text-anchor="middle">INTERFACE</text>
-  <text x="14" y="192" font-family="monospace" font-size="9" fill="#6b7280" transform="rotate(-90, 14, 192)">CORE</text>
-  <text x="14" y="310" font-family="monospace" font-size="9" fill="#6b7280" transform="rotate(-90, 14, 310)">STORAGE</text>
+  <rect width="800" height="480" fill="url(#archBg)" rx="12"/>
+  <rect x="0" y="0" width="800" height="4" fill="#7C3AED"/>
 
-  <!-- Layer dividers -->
-  <line x1="30" y1="120" x2="790" y2="120" stroke="#1f2937" stroke-width="1" stroke-dasharray="6,4"/>
-  <line x1="30" y1="250" x2="790" y2="250" stroke="#1f2937" stroke-width="1" stroke-dasharray="6,4"/>
-  <line x1="30" y1="360" x2="790" y2="360" stroke="#1f2937" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="400" y="30" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="15" font-weight="bold" fill="#e2e8f0">System Architecture</text>
 
-  <!-- ── INTERFACE LAYER ── -->
-  <!-- Telegram Users box -->
-  <rect x="50" y="50" width="130" height="52" rx="8" fill="#2563EB" fill-opacity="0.15" stroke="#2563EB" stroke-width="1.5"/>
-  <text x="115" y="72" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle" font-weight="bold">👤 Telegram</text>
-  <text x="115" y="88" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle">Group Users</text>
+  <!-- Telegram Cloud -->
+  <rect x="30" y="60" width="140" height="60" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="100" y="87" text-anchor="middle" font-family="monospace" font-size="11" fill="#93c5fd">☁️ Telegram</text>
+  <text x="100" y="103" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Bot API</text>
 
-  <!-- Telegram API box -->
-  <rect x="330" y="50" width="160" height="52" rx="8" fill="#06B6D4" fill-opacity="0.12" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="410" y="72" font-family="monospace" font-size="10" fill="#67e8f9" text-anchor="middle" font-weight="bold">☁️ Telegram Bot</text>
-  <text x="410" y="88" font-family="monospace" font-size="10" fill="#67e8f9" text-anchor="middle">API (Long-Poll)</text>
+  <!-- Arrow Telegram → Bot -->
+  <line x1="170" y1="90" x2="240" y2="90" stroke="#2563EB" stroke-width="1.5"
+        marker-end="url(#arrowBlue)" stroke-dasharray="4,3"/>
+  <text x="205" y="84" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">polling</text>
 
-  <!-- Admin browser -->
-  <rect x="630" y="50" width="140" height="52" rx="8" fill="#7C3AED" fill-opacity="0.15" stroke="#7C3AED" stroke-width="1.5"/>
-  <text x="700" y="72" font-family="monospace" font-size="10" fill="#c4b5fd" text-anchor="middle" font-weight="bold">🌐 Admin</text>
-  <text x="700" y="88" font-family="monospace" font-size="10" fill="#c4b5fd" text-anchor="middle">Browser / Dashboard</text>
-
-  <!-- Arrows from Users → API -->
-  <line x1="180" y1="76" x2="328" y2="76" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
-  <text x="254" y="70" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">media / commands</text>
-
-  <!-- Arrow API → artemis_bot -->
-  <line x1="410" y1="102" x2="410" y2="148" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#arrowCyan)"/>
-
-  <!-- Arrow dashboard → Admin -->
-  <line x1="700" y1="148" x2="700" y2="102" stroke="#7C3AED" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
-
-  <!-- ── CORE LAYER ── -->
   <!-- artemis_bot.py -->
-  <rect x="50" y="148" width="480" height="80" rx="8" fill="#7C3AED" fill-opacity="0.12" stroke="#7C3AED" stroke-width="2"/>
-  <text x="290" y="170" font-family="monospace" font-size="11" fill="#c4b5fd" text-anchor="middle" font-weight="bold">⚙️  artemis_bot.py  —  Core Processing Engine</text>
-  <!-- Sub-boxes inside artemis_bot -->
-  <rect x="68" y="182" width="88" height="32" rx="5" fill="#2563EB" fill-opacity="0.2" stroke="#2563EB" stroke-width="1"/>
-  <text x="112" y="202" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">Image Handler</text>
-  <rect x="168" y="182" width="88" height="32" rx="5" fill="#2563EB" fill-opacity="0.2" stroke="#2563EB" stroke-width="1"/>
-  <text x="212" y="202" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">Video Handler</text>
-  <rect x="268" y="182" width="88" height="32" rx="5" fill="#06B6D4" fill-opacity="0.18" stroke="#06B6D4" stroke-width="1"/>
-  <text x="312" y="202" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">Action Decider</text>
-  <rect x="368" y="182" width="88" height="32" rx="5" fill="#06B6D4" fill-opacity="0.18" stroke="#06B6D4" stroke-width="1"/>
-  <text x="412" y="202" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">Admin Commands</text>
+  <rect x="240" y="50" width="180" height="80" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="2"/>
+  <text x="330" y="78" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#c4b5fd">artemis_bot.py</text>
+  <text x="330" y="95" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">Event Loop + Handlers</text>
+  <text x="330" y="111" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">Violation Logic</text>
+
+  <!-- Arrow Bot → ML Model -->
+  <line x1="420" y1="90" x2="490" y2="90" stroke="#7C3AED" stroke-width="1.5"
+        marker-end="url(#arrowPurple)"/>
+  <text x="455" y="84" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">media bytes</text>
+
+  <!-- ML Model -->
+  <rect x="490" y="50" width="180" height="80" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="2"/>
+  <text x="580" y="78" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#67e8f9">Falconsai ViT</text>
+  <text x="580" y="95" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">nsfw_image_detection</text>
+  <text x="580" y="111" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">PyTorch / HuggingFace</text>
+
+  <!-- Arrow ML → Bot (result) -->
+  <path d="M 580 130 L 580 150 L 330 150 L 330 130" fill="none" stroke="#06B6D4"
+        stroke-width="1.5" marker-end="url(#arrowCyan)" stroke-dasharray="4,3"/>
+  <text x="455" y="170" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">label + confidence</text>
+
+  <!-- SQLite -->
+  <rect x="240" y="230" width="160" height="60" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="320" y="256" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#93c5fd">SQLite DB</text>
+  <text x="320" y="273" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">violations.db</text>
+
+  <!-- Arrow Bot → SQLite -->
+  <line x1="330" y1="130" x2="320" y2="230" stroke="#2563EB" stroke-width="1.5"
+        marker-end="url(#arrowBlue)"/>
+  <text x="305" y="185" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b" transform="rotate(-88,305,185)">read/write</text>
+
+  <!-- File System -->
+  <rect x="490" y="230" width="180" height="60" rx="8" fill="#1a1a2e" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="580" y="256" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#c4b5fd">File System</text>
+  <text x="580" y="273" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">flagged_images/ videos/</text>
+
+  <!-- Arrow Bot → FileSystem -->
+  <line x1="420" y1="110" x2="490" y2="250" stroke="#7C3AED" stroke-width="1.5"
+        marker-end="url(#arrowPurple)" stroke-dasharray="4,3"/>
 
   <!-- dashboard.py -->
-  <rect x="580" y="148" width="190" height="80" rx="8" fill="#06B6D4" fill-opacity="0.1" stroke="#06B6D4" stroke-width="2"/>
-  <text x="675" y="170" font-family="monospace" font-size="11" fill="#67e8f9" text-anchor="middle" font-weight="bold">📊 dashboard.py</text>
-  <text x="675" y="188" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">Flask REST API</text>
-  <text x="675" y="202" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">Socket.IO WebSocket</text>
-  <text x="675" y="216" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">Chart.js Visualisation</text>
+  <rect x="240" y="360" width="160" height="60" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="2"/>
+  <text x="320" y="386" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#67e8f9">dashboard.py</text>
+  <text x="320" y="403" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">Flask + Socket.IO</text>
 
-  <!-- ML Layer arrows -->
-  <line x1="290" y1="228" x2="290" y2="262" stroke="#7C3AED" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+  <!-- Arrow SQLite → Dashboard -->
+  <line x1="320" y1="290" x2="320" y2="360" stroke="#06B6D4" stroke-width="1.5"
+        marker-end="url(#arrowCyan)"/>
 
-  <!-- ML Models box -->
-  <rect x="50" y="262" width="480" height="74" rx="8" fill="#2563EB" fill-opacity="0.1" stroke="#2563EB" stroke-width="1.5"/>
-  <text x="290" y="283" font-family="monospace" font-size="11" fill="#93c5fd" text-anchor="middle" font-weight="bold">🤖  ML Inference Layer  (HuggingFace / PyTorch)</text>
-  <rect x="68" y="294" width="140" height="30" rx="5" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="1"/>
-  <text x="138" y="313" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">HF pipeline (image-class)</text>
-  <rect x="230" y="294" width="140" height="30" rx="5" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="1"/>
-  <text x="300" y="313" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">VideoContentAnalyzer</text>
-  <rect x="392" y="294" width="118" height="30" rx="5" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="1"/>
-  <text x="451" y="313" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">ViTImageProcessor</text>
+  <!-- Admin Browser -->
+  <rect x="490" y="360" width="140" height="60" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="560" y="386" text-anchor="middle" font-family="monospace" font-size="11" fill="#93c5fd">🖥️ Admin</text>
+  <text x="560" y="403" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Browser Dashboard</text>
 
-  <!-- ML → Storage arrow -->
-  <line x1="290" y1="336" x2="290" y2="372" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#arrowCyan)"/>
-  <!-- dashboard → storage arrow -->
-  <line x1="675" y1="228" x2="675" y2="372" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowCyan)"/>
+  <!-- Arrow Dashboard → Browser -->
+  <line x1="400" y1="390" x2="490" y2="390" stroke="#2563EB" stroke-width="1.5"
+        marker-end="url(#arrowBlue)"/>
+  <text x="445" y="384" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">HTTP / WS</text>
 
-  <!-- ── STORAGE LAYER ── -->
-  <rect x="50" y="372" width="720" height="36" rx="8" fill="#06B6D4" fill-opacity="0.08" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="162" y="394" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">🗄️ SQLite: violations</text>
-  <text x="322" y="394" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">📋 SQLite: actions</text>
-  <text x="470" y="394" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">📊 SQLite: stats</text>
-  <text x="630" y="394" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle">📁 Filesystem: flagged media</text>
+  <!-- Admin Telegram -->
+  <rect x="30" y="230" width="140" height="60" rx="8" fill="#1a1a2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="100" y="256" text-anchor="middle" font-family="monospace" font-size="11" fill="#67e8f9">👮 Admin</text>
+  <text x="100" y="273" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Telegram DM</text>
 
-  <!-- dividers inside storage -->
-  <line x1="240" y1="372" x2="240" y2="408" stroke="#06B6D4" stroke-width="0.5" stroke-opacity="0.4"/>
-  <line x1="400" y1="372" x2="400" y2="408" stroke="#06B6D4" stroke-width="0.5" stroke-opacity="0.4"/>
-  <line x1="548" y1="372" x2="548" y2="408" stroke="#06B6D4" stroke-width="0.5" stroke-opacity="0.4"/>
+  <!-- Arrow Bot → Admin DM -->
+  <line x1="240" y1="100" x2="170" y2="240" stroke="#06B6D4" stroke-width="1.5"
+        marker-end="url(#arrowCyan)" stroke-dasharray="4,3"/>
+  <text x="175" y="175" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">alert + media</text>
+
+  <!-- Legend -->
+  <rect x="30" y="430" width="740" height="40" rx="6" fill="#111827" opacity="0.6"/>
+  <line x1="50"  y1="450" x2="80"  y2="450" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="85"  y="454" font-family="monospace" font-size="9" fill="#94a3b8">primary flow</text>
+  <line x1="160" y1="450" x2="190" y2="450" stroke="#2563EB" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="195" y="454" font-family="monospace" font-size="9" fill="#94a3b8">async/event</text>
+  <line x1="270" y1="450" x2="300" y2="450" stroke="#06B6D4" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="305" y="454" font-family="monospace" font-size="9" fill="#94a3b8">notification</text>
 </svg>
 
 </div>
 
 ---
 
-## 🔄 Data Flow
+## 🌊 Data Flow Diagram
 
 <div align="center">
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" width="820" height="480">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
   <defs>
-    <linearGradient id="dfBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1"/>
+    <linearGradient id="dfBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#080814"/>
     </linearGradient>
-    <linearGradient id="dfAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#7C3AED"/>
-      <stop offset="100%" style="stop-color:#06B6D4"/>
-    </linearGradient>
-    <marker id="dfArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <marker id="dfArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
       <polygon points="0 0, 8 3, 0 6" fill="#06B6D4"/>
     </marker>
-    <marker id="dfArrowRed" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+    <marker id="dfArrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f87171"/>
     </marker>
-    <marker id="dfArrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+    <marker id="dfArrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4ade80"/>
     </marker>
   </defs>
-  <rect width="820" height="480" fill="url(#dfBg)" rx="14"/>
-  <rect x="0" y="0" width="820" height="3" fill="url(#dfAccent)" rx="1"/>
-  <text x="410" y="26" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle" font-weight="bold" letter-spacing="2">MEDIA PROCESSING DATA FLOW</text>
 
-  <!-- Step 1: User sends media -->
-  <rect x="300" y="46" width="220" height="40" rx="8" fill="#2563EB" fill-opacity="0.2" stroke="#2563EB" stroke-width="1.5"/>
-  <text x="410" y="71" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle" font-weight="bold">1. User sends media to group</text>
-  <line x1="410" y1="86" x2="410" y2="112" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <rect width="800" height="420" fill="url(#dfBg)" rx="12"/>
+  <rect x="0" y="0" width="800" height="4" fill="#06B6D4"/>
 
-  <!-- Step 2: Message handler -->
-  <rect x="300" y="112" width="220" height="40" rx="8" fill="#7C3AED" fill-opacity="0.18" stroke="#7C3AED" stroke-width="1.5"/>
-  <text x="410" y="137" font-family="monospace" font-size="10" fill="#c4b5fd" text-anchor="middle" font-weight="bold">2. MessageHandler intercepts</text>
-  <!-- Branch arrow -->
-  <line x1="410" y1="152" x2="410" y2="178" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <text x="400" y="28" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="15" font-weight="bold" fill="#e2e8f0">Data Flow: Media Moderation Pipeline</text>
 
-  <!-- Decision diamond: Image or Video? -->
-  <polygon points="410,178 510,210 410,242 310,210" fill="#06B6D4" fill-opacity="0.12" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="410" y="206" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">Image or</text>
-  <text x="410" y="220" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">Video/GIF?</text>
+  <!-- Step 1: Media Received -->
+  <rect x="30" y="50" width="130" height="50" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="95" y="72" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#c4b5fd">1. Media</text>
+  <text x="95" y="88" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">Received</text>
 
-  <!-- Left branch: Image -->
-  <line x1="310" y1="210" x2="170" y2="210" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
-  <text x="240" y="204" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">Image</text>
-  <rect x="60" y="190" width="110" height="40" rx="7" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.2"/>
-  <text x="115" y="209" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">HF pipeline</text>
-  <text x="115" y="223" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">image-classification</text>
-  <line x1="115" y1="230" x2="115" y2="272" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <!-- Arrow 1→2 -->
+  <line x1="160" y1="75" x2="210" y2="75" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
 
-  <!-- Right branch: Video/GIF -->
-  <line x1="510" y1="210" x2="650" y2="210" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
-  <text x="580" y="204" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">Video/GIF</text>
-  <rect x="650" y="190" width="120" height="40" rx="7" fill="#2563EB" fill-opacity="0.18" stroke="#2563EB" stroke-width="1.2"/>
-  <text x="710" y="207" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">VideoContent</text>
-  <text x="710" y="221" font-family="monospace" font-size="8" fill="#93c5fd" text-anchor="middle">Analyzer (6 frames)</text>
-  <line x1="710" y1="230" x2="710" y2="272" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <!-- Step 2: Download -->
+  <rect x="210" y="50" width="130" height="50" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="275" y="72" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#67e8f9">2. Download</text>
+  <text x="275" y="88" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">temp file</text>
 
-  <!-- Converge to classifier result -->
-  <rect x="60" y="272" width="110" height="36" rx="7" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="1.2"/>
-  <text x="115" y="289" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">ViT Classifier</text>
-  <text x="115" y="302" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">label + score</text>
+  <!-- Arrow 2→3 -->
+  <line x1="340" y1="75" x2="390" y2="75" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
 
-  <rect x="650" y="272" width="120" height="36" rx="7" fill="#7C3AED" fill-opacity="0.2" stroke="#7C3AED" stroke-width="1.2"/>
-  <text x="710" y="289" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">Frame classifier</text>
-  <text x="710" y="302" font-family="monospace" font-size="8" fill="#c4b5fd" text-anchor="middle">label + score</text>
+  <!-- Step 3: Classify -->
+  <rect x="390" y="50" width="140" height="50" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="460" y="72" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#c4b5fd">3. Classify</text>
+  <text x="460" y="88" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">ViT inference</text>
 
-  <!-- Both converge to decision -->
-  <line x1="170" y1="290" x2="295" y2="326" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
-  <line x1="650" y1="290" x2="525" y2="326" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <!-- Arrow 3→4 -->
+  <line x1="530" y1="75" x2="580" y2="75" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
 
-  <!-- Decision: NSFW? -->
-  <polygon points="410,326 510,354 410,382 310,354" fill="#06B6D4" fill-opacity="0.12" stroke="#06B6D4" stroke-width="1.5"/>
-  <text x="410" y="350" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">NSFW?</text>
-  <text x="410" y="365" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">(conf ≥ 0.5)</text>
+  <!-- Step 4: Decision -->
+  <rect x="580" y="50" width="160" height="50" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="660" y="72" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#93c5fd">4. Decision</text>
+  <text x="660" y="88" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">NSFW or SFW?</text>
 
-  <!-- Yes path: NSFW actions -->
-  <line x1="310" y1="354" x2="170" y2="354" stroke="#ef4444" stroke-width="1.5" marker-end="url(#dfArrowRed)"/>
-  <text x="240" y="348" font-family="monospace" font-size="8" fill="#ef4444" text-anchor="middle">YES</text>
-  <rect x="50" y="380" width="230" height="80" rx="7" fill="#ef4444" fill-opacity="0.08" stroke="#ef4444" stroke-width="1.2"/>
-  <text x="165" y="400" font-family="monospace" font-size="8" fill="#fca5a5" text-anchor="middle" font-weight="bold">ENFORCEMENT ACTIONS</text>
-  <text x="165" y="416" font-family="monospace" font-size="8" fill="#fca5a5" text-anchor="middle">→ Delete message</text>
-  <text x="165" y="430" font-family="monospace" font-size="8" fill="#fca5a5" text-anchor="middle">→ Increment violation count</text>
-  <text x="165" y="444" font-family="monospace" font-size="8" fill="#fca5a5" text-anchor="middle">→ Notify admins + cache media</text>
-  <text x="165" y="458" font-family="monospace" font-size="8" fill="#fca5a5" text-anchor="middle">→ Auto-ban if threshold reached</text>
+  <!-- NSFW branch (down from decision) -->
+  <line x1="660" y1="100" x2="660" y2="150" stroke="#f87171" stroke-width="1.5" marker-end="url(#dfArrowRed)"/>
+  <text x="670" y="135" font-family="monospace" font-size="9" fill="#f87171">NSFW</text>
 
-  <!-- No path: SFW -->
-  <line x1="510" y1="354" x2="640" y2="354" stroke="#10b981" stroke-width="1.5" marker-end="url(#dfArrowGreen)"/>
-  <text x="575" y="348" font-family="monospace" font-size="8" fill="#10b981" text-anchor="middle">NO</text>
-  <rect x="640" y="334" width="130" height="40" rx="7" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="1.2"/>
-  <text x="705" y="353" font-family="monospace" font-size="8" fill="#6ee7b7" text-anchor="middle">✅ SFW — no action</text>
-  <text x="705" y="367" font-family="monospace" font-size="8" fill="#6ee7b7" text-anchor="middle">temp file removed</text>
+  <!-- SFW branch (right from decision then down) -->
+  <line x1="660" y1="100" x2="760" y2="100" stroke="#4ade80" stroke-width="1.5"/>
+  <line x1="760" y1="100" x2="760" y2="150" stroke="#4ade80" stroke-width="1.5" marker-end="url(#dfArrowGreen)"/>
+  <text x="714" y="115" text-anchor="middle" font-family="monospace" font-size="9" fill="#4ade80">SFW</text>
 
-  <!-- Both → DB update -->
-  <line x1="280" y1="420" x2="390" y2="462" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#dfArrow)"/>
-  <line x1="705" y1="374" x2="460" y2="462" stroke="#06B6D4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#dfArrow)"/>
-  <rect x="390" y="462" width="240" height="14" rx="5" fill="#06B6D4" fill-opacity="0.12" stroke="#06B6D4" stroke-width="1"/>
-  <text x="510" y="473" font-family="monospace" font-size="8" fill="#67e8f9" text-anchor="middle">SQLite update (stats · actions · contents)</text>
+  <!-- NSFW action box -->
+  <rect x="530" y="150" width="160" height="160" rx="8" fill="#1f0a0a" stroke="#f87171" stroke-width="1.5"/>
+  <text x="610" y="172" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#f87171">NSFW Actions</text>
+  <text x="610" y="192" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">• Delete message</text>
+  <text x="610" y="210" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">• Warn user</text>
+  <text x="610" y="228" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">• Cache media</text>
+  <text x="610" y="246" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">• Notify admins</text>
+  <text x="610" y="264" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">• +1 violation</text>
+  <text x="610" y="290" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">↓ if ≥ threshold</text>
+  <text x="610" y="302" text-anchor="middle" font-family="monospace" font-size="9" fill="#f87171">🔨 AUTO-BAN</text>
+
+  <!-- SFW action box -->
+  <rect x="700" y="150" width="80" height="60" rx="8" fill="#0a1f0a" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="740" y="175" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#4ade80">SFW</text>
+  <text x="740" y="193" text-anchor="middle" font-family="monospace" font-size="9" fill="#86efac">delete temp</text>
+
+  <!-- DB write (from NSFW box) -->
+  <line x1="530" y1="270" x2="430" y2="270" stroke="#2563EB" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <rect x="280" y="250" width="150" height="50" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="355" y="272" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#93c5fd">SQLite Write</text>
+  <text x="355" y="288" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">violations / actions / stats</text>
+
+  <!-- Dashboard refresh -->
+  <line x1="355" y1="300" x2="355" y2="350" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+  <rect x="255" y="350" width="200" height="50" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="355" y="372" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#67e8f9">Dashboard Update</text>
+  <text x="355" y="388" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">Socket.IO push → browser</text>
+
+  <!-- Media type note -->
+  <rect x="30" y="150" width="200" height="70" rx="8" fill="#111827" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="130" y="172" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#94a3b8">Media Types</text>
+  <text x="130" y="190" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">📷 Photo → direct pipeline</text>
+  <text x="130" y="206" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">🎬 Video → 6-frame sample</text>
+  <text x="130" y="222" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">🎭 GIF/Anim → frame sample</text>
 </svg>
 
 </div>
 
 ---
 
-## 🛠️ Technology Stack
-
-| Layer | Technology | Version | Purpose |
-|---|---|---|---|
-| **Language** | Python | 3.10+ | Core runtime |
-| **Bot Framework** | python-telegram-bot | ≥ 21.0 | Telegram API integration |
-| **ML Framework** | PyTorch | ≥ 2.0 | Deep learning inference backend |
-| **Model Hub** | HuggingFace Transformers | ≥ 4.30 | ViT model loading & inference |
-| **NSFW Model** | Falconsai/nsfw_image_detection | latest | Vision Transformer classifier |
-| **Image Processing** | Pillow | ≥ 10.0 | Image manipulation & format conversion |
-| **Video Processing** | OpenCV Headless | ≥ 4.8 | Frame extraction from videos & GIFs |
-| **Database** | SQLite3 | stdlib | Violation & statistics persistence |
-| **Web Server** | Flask | ≥ 3.0 | Dashboard HTTP server |
-| **Real-time** | Flask-SocketIO | ≥ 5.3 | WebSocket push for live dashboard |
-| **Dashboard UI** | Tailwind CSS + Chart.js | CDN | Visualisation frontend |
-| **Config** | python-dotenv | ≥ 1.0 | Environment variable management |
-
----
-
-## ✨ Features
-
-| Feature | Description |
-|---|---|
-| 🖼️ **Image Moderation** | Scans every photo with [Falconsai/nsfw_image_detection](https://huggingface.co/Falconsai/nsfw_image_detection) using HuggingFace `pipeline("image-classification")` |
-| 🎬 **Video & GIF Moderation** | Samples 6 evenly-spaced frames per video via OpenCV; stops immediately on NSFW detection |
-| ⚠️ **Violation Tracking** | Persists per-user violation counts to SQLite — survives bot restarts |
-| 🚫 **Auto-Ban** | Automatically bans users who exceed the configurable `FLAG_THRESHOLD` (default: 3) |
-| 📣 **Admin Notifications** | Forwards flagged media and alert messages directly to all configured admin Telegram IDs |
-| 🗄️ **Evidence Caching** | Archives flagged images and videos to disk with timestamped filenames for audit |
-| 📊 **Real-Time Dashboard** | Flask + Socket.IO dashboard with 5 live Chart.js graphs updating every 10 seconds |
-| 🛡️ **Chat Owner Protection** | Gracefully handles the Telegram `Can't remove chat owner` error — no crash |
-| 🔧 **Environment-Variable Config** | All secrets and operational settings live in `.env` — nothing is hard-coded |
-| 🤖 **GPU Acceleration** | Auto-detects CUDA GPUs; falls back to CPU if unavailable |
-| 📋 **Full Audit Log** | Every moderation action (content_removed, user_banned) is logged with timestamp |
-| 📈 **Statistics Tracking** | Tracks total_contents_scanned, total_nsfw_detected, total_sfw, total_users_banned, total_violations |
-
----
-
-## 🚀 Installation
+## 🔧 Installation
 
 ### Prerequisites
 
-- Python **3.10** or later
-- A Telegram **Bot Token** — create one with [@BotFather](https://t.me/BotFather)
-- The bot must be added to your group as an **admin** with *Delete Messages* and *Ban Users* permissions
-- *(Optional)* A CUDA-capable GPU for faster inference
+- Python 3.10 or newer
+- A Telegram bot token from [@BotFather](https://t.me/BotFather)
+- At least one admin Telegram user ID
+- (Optional but recommended) A CUDA-capable GPU for faster inference
 
-### 1 — Clone the Repository
+### Quick Start
 
 ```bash
+# 1. Clone the repo
 git clone https://github.com/Kaelith69/A.R.T.E.M.I.S.S.git
 cd A.R.T.E.M.I.S.S
-```
 
-### 2 — Create a Virtual Environment
-
-```bash
+# 2. Create a virtual environment (don't skip this, you'll regret it)
 python -m venv venv
-source venv/bin/activate        # Linux / macOS
-# venv\Scripts\activate         # Windows
-```
+source venv/bin/activate        # Windows: venv\Scripts\activate
 
-### 3 — Install Dependencies
-
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
-```
 
-> **GPU users:** install the CUDA-enabled PyTorch wheel first:  
-> `pip install torch --index-url https://download.pytorch.org/whl/cu121`
-
-### 4 — Configure Environment Variables
-
-```bash
+# 4. Configure the bot
 cp .env.example .env
-```
+# Edit .env — minimum: BOT_TOKEN and ADMIN_IDS
 
-Edit `.env` with your values:
-
-```env
-BOT_TOKEN=1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-ADMIN_IDS=123456789,987654321
-FLAG_THRESHOLD=3
-DB_FILE=violations.db
-FLAGGED_IMAGES_DIR=flagged_images
-FLAGGED_VIDEOS_DIR=flagged_videos
-DASHBOARD_SECRET_KEY=change_me_to_a_long_random_string
-```
-
-### 5 — Initialise the Database
-
-```bash
+# 5. Initialize the database
 python setup_db.py
-```
 
-### 6 — Run the Bot
-
-```bash
+# 6. Start the bot
 python artemis_bot.py
+
+# 7. (Optional) Start the dashboard in a separate terminal
+python dashboard.py
 ```
 
-### 7 — (Optional) Run the Dashboard
+> 💡 First run downloads the Falconsai ViT model (~350MB) from HuggingFace. This takes a moment. Subsequent starts use the local cache. Consider getting a coffee.
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `BOT_TOKEN` | ✅ | — | Telegram bot token from BotFather |
+| `ADMIN_IDS` | ✅ | — | Comma-separated admin Telegram user IDs |
+| `FLAG_THRESHOLD` | ❌ | `3` | Violations before auto-ban |
+| `DB_FILE` | ❌ | `violations.db` | SQLite database path |
+| `FLAGGED_IMAGES_DIR` | ❌ | `flagged_images` | Where to cache flagged images |
+| `FLAGGED_VIDEOS_DIR` | ❌ | `flagged_videos` | Where to cache flagged videos |
+| `DASHBOARD_SECRET_KEY` | ❌ | auto-generated | Flask session secret |
+
+---
+
+## 🚀 Usage
+
+### Adding the Bot to a Group
+
+1. Add `@YourBotUsername` to your Telegram group
+2. Promote the bot to **admin** with permissions:
+   - Delete messages
+   - Ban users
+3. Send `/start` in the group to verify the bot is alive
+
+### Commands
+
+| Command | Who | Description |
+|---|---|---|
+| `/start` | Anyone | Welcome message + quick summary |
+| `/help` | Anyone | Full command list |
+| `/violations` | Anyone | Check your own violation count |
+| `/stats` | Anyone | View bot statistics |
+| `/admin_flagged` | Admins | List all users with violations |
+| `/admin_reset <user_id>` | Admins | Reset a user's violation count |
+| `/admin_ban <user_id>` | Admins | Manually ban a user |
+
+### Dashboard
+
+Start the dashboard:
 
 ```bash
 python dashboard.py
 ```
 
-Open [http://localhost:5000](http://localhost:5000) in your browser.
+Then open `http://localhost:5000` in your browser. You'll see:
+- Real-time scan counts
+- NSFW detection totals
+- Action log (deletions, bans)
+- Content type breakdown
 
----
-
-## 💻 Usage
-
-### Monitoring a Group
-
-1. Add the bot to your Telegram group.
-2. Promote it to **admin** with *Delete Messages* and *Ban Users* permissions.
-3. Start the bot process: `python artemis_bot.py`.
-4. The bot will silently monitor all media sent to the group.
-
-### Violation Lifecycle
-
-```
-Violation 1  →  warning message sent to user in group
-Violation 2  →  warning message sent to user in group
-Violation 3  →  user banned from group (configurable via FLAG_THRESHOLD)
-             →  violation count reset
-             →  all configured admins notified with the cached flagged media
-```
-
----
-
-## ⚙️ Configuration Reference
-
-All configuration is done via environment variables (loaded from `.env`).
-
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `BOT_TOKEN` | ✅ | — | Telegram bot token from @BotFather |
-| `ADMIN_IDS` | ✅ | — | Comma-separated Telegram user IDs of admins |
-| `FLAG_THRESHOLD` | ❌ | `3` | Violations before auto-ban |
-| `DB_FILE` | ❌ | `violations.db` | Path to the SQLite database file |
-| `FLAGGED_IMAGES_DIR` | ❌ | `flagged_images` | Directory for cached flagged images |
-| `FLAGGED_VIDEOS_DIR` | ❌ | `flagged_videos` | Directory for cached flagged videos |
-| `DASHBOARD_SECRET_KEY` | ❌ | random UUID | Flask session secret key |
-
----
-
-## 🤖 Bot Commands
-
-| Command | Access | Description |
-|---|---|---|
-| `/start` | All users | Welcome message and system overview |
-| `/help` | All users | Full command reference |
-| `/violations` | All users | Check your own current violation count |
-| `/stats` | All users | View aggregate bot statistics |
-| `/admin_flagged` | Admin only | List all users with active violations |
-| `/admin_reset <user_id>` | Admin only | Reset a specific user's violation count |
-| `/admin_ban <user_id>` | Admin only | Manually ban a user from the group |
-
----
-
-## 📊 Dashboard
-
-The optional Flask dashboard provides a real-time administrative view:
-
-| Panel | Type | Description |
-|---|---|---|
-| **Total Scanned** | Status card | Total content items processed |
-| **NSFW Detected** | Status card | Total items flagged as NSFW |
-| **SFW Detected** | Status card | Total items passed as safe |
-| **Users Banned** | Status card | Total unique bans issued |
-| **Current Violations** | Status card | Total accumulated violations |
-| **Action Trend** | Line chart | Moderation actions over time |
-| **Content Breakdown** | Bar chart | SFW vs NSFW comparison |
-| **Actions Distribution** | Doughnut chart | Breakdown by action type |
-| **Stats Overview** | Horizontal bar | All stats in one view |
-| **Analytics Comparison** | Multi-line chart | NSFW, SFW, and bans over time |
-| **Recent Actions** | Live feed | Real-time audit log feed |
-
-Data refreshes automatically every **10 seconds** via Socket.IO.
-
----
-
-## 🗄️ Database Schema
-
-```sql
--- Per-user violation counts (upserted on every NSFW detection)
-CREATE TABLE violations (
-    user_id INTEGER PRIMARY KEY,
-    count   INTEGER
-);
-
--- Aggregate system statistics (keyed counters)
-CREATE TABLE stats (
-    key   TEXT PRIMARY KEY,
-    value INTEGER
-);
-
--- Full moderation audit log
-CREATE TABLE actions (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id   INTEGER,
-    action    TEXT,     -- 'content_removed' | 'user_banned'
-    timestamp TEXT
-);
-
--- Individual content scan records
-CREATE TABLE contents (
-    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    type    TEXT,      -- 'image' | 'video'
-    is_nsfw INTEGER    -- 0 (SFW) | 1 (NSFW)
-);
-```
+Stats update every 10 seconds via Socket.IO without refreshing.
 
 ---
 
@@ -655,179 +602,131 @@ CREATE TABLE contents (
 
 ```
 A.R.T.E.M.I.S.S/
-├── artemis_bot.py          # Main bot: Telegram handlers, ML inference, DB logic, enforcement
-├── dashboard.py            # Flask + Socket.IO admin dashboard (REST API + WebSocket)
-├── setup_db.py             # One-shot database initialisation script
+├── artemis_bot.py        # 🤖 Core bot — all handlers, DB logic, violation engine
+├── dashboard.py          # 📊 Flask + Socket.IO admin dashboard
+├── setup_db.py           # 🗄️ Database init script (run once)
 ├── templates/
-│   └── index.html          # Dashboard UI — Tailwind CSS + Chart.js
-├── .env.example            # Environment variable template (safe to commit)
-├── .gitignore              # Excludes .env, flagged media dirs, violations.db, __pycache__
-├── requirements.txt        # Python package dependencies
-├── blueprint.md            # Development blueprint and module design notes
-└── violations.db           # SQLite database (created at runtime — git-ignored)
+│   └── index.html        # 🖥️ Dashboard web UI (Tailwind CSS + Chart.js)
+├── wiki/                 # 📚 Full documentation wiki
+├── assets/               # 🎬 Demo GIFs and static assets
+├── .env.example          # ⚙️ Config template — copy to .env and fill in
+├── requirements.txt      # 📦 Python dependencies
+├── blueprint.md          # 🗺️ Original development blueprint
+└── LICENSE               # ⚖️ MIT License
+```
+
+*Auto-created at runtime:*
+```
+├── violations.db         # SQLite database
+├── flagged_images/       # Cached flagged images
+├── flagged_videos/       # Cached flagged videos
+└── temp_<user_id>.*      # Ephemeral temp files (deleted after scan)
 ```
 
 ---
 
-## ⚡ Performance
+## 📈 Performance Stats
 
 <div align="center">
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 200" width="820" height="200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="800" height="240">
   <defs>
-    <linearGradient id="perfBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0d0d1a;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="perfAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#7C3AED"/>
-      <stop offset="100%" style="stop-color:#06B6D4"/>
-    </linearGradient>
-    <linearGradient id="barPurple" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:0.9"/>
-      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:0.4"/>
-    </linearGradient>
-    <linearGradient id="barBlue" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.9"/>
-      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0.4"/>
-    </linearGradient>
-    <linearGradient id="barCyan" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:0.9"/>
-      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:0.4"/>
+    <linearGradient id="statsBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#080814"/>
     </linearGradient>
   </defs>
-  <rect width="820" height="200" fill="url(#perfBg)" rx="14"/>
-  <rect x="0" y="0" width="820" height="3" fill="url(#perfAccent)" rx="1"/>
-  <text x="410" y="26" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle" font-weight="bold" letter-spacing="2">PERFORMANCE CHARACTERISTICS</text>
 
-  <!-- Stat card 1: Image inference -->
-  <rect x="40" y="46" width="160" height="130" rx="10" fill="#7C3AED" fill-opacity="0.1" stroke="#7C3AED" stroke-width="1.2"/>
-  <text x="120" y="70" font-family="monospace" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="bold">IMAGE INFERENCE</text>
-  <text x="120" y="108" font-family="monospace" font-size="28" fill="#c4b5fd" text-anchor="middle" font-weight="bold">~0.3s</text>
-  <text x="120" y="126" font-family="monospace" font-size="9" fill="#6b7280" text-anchor="middle">CPU (single image)</text>
-  <rect x="60" y="138" width="120" height="6" rx="3" fill="#1f2937"/>
-  <rect x="60" y="138" width="90" height="6" rx="3" fill="url(#barPurple)"/>
-  <text x="120" y="162" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">GPU: &lt;0.05s</text>
+  <rect width="800" height="240" fill="url(#statsBg)" rx="12"/>
+  <rect x="0" y="0" width="800" height="4" fill="#7C3AED"/>
 
-  <!-- Stat card 2: Video inference -->
-  <rect x="220" y="46" width="160" height="130" rx="10" fill="#2563EB" fill-opacity="0.1" stroke="#2563EB" stroke-width="1.2"/>
-  <text x="300" y="70" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle" font-weight="bold">VIDEO ANALYSIS</text>
-  <text x="300" y="108" font-family="monospace" font-size="28" fill="#93c5fd" text-anchor="middle" font-weight="bold">~1.8s</text>
-  <text x="300" y="126" font-family="monospace" font-size="9" fill="#6b7280" text-anchor="middle">CPU · 6 frames</text>
-  <rect x="240" y="138" width="120" height="6" rx="3" fill="#1f2937"/>
-  <rect x="240" y="138" width="70" height="6" rx="3" fill="url(#barBlue)"/>
-  <text x="300" y="162" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">GPU: ~0.3s</text>
+  <text x="400" y="30" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="14" font-weight="bold" fill="#e2e8f0">Runtime Characteristics</text>
 
-  <!-- Stat card 3: Throughput -->
-  <rect x="400" y="46" width="160" height="130" rx="10" fill="#06B6D4" fill-opacity="0.1" stroke="#06B6D4" stroke-width="1.2"/>
-  <text x="480" y="70" font-family="monospace" font-size="9" fill="#67e8f9" text-anchor="middle" font-weight="bold">THROUGHPUT</text>
-  <text x="480" y="108" font-family="monospace" font-size="28" fill="#67e8f9" text-anchor="middle" font-weight="bold">~3/s</text>
-  <text x="480" y="126" font-family="monospace" font-size="9" fill="#6b7280" text-anchor="middle">images · CPU</text>
-  <rect x="420" y="138" width="120" height="6" rx="3" fill="#1f2937"/>
-  <rect x="420" y="138" width="100" height="6" rx="3" fill="url(#barCyan)"/>
-  <text x="480" y="162" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">GPU: ~20/s</text>
+  <!-- Stat card 1 -->
+  <rect x="30" y="50" width="160" height="90" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="110" y="80" text-anchor="middle" font-family="monospace" font-size="24" font-weight="bold" fill="#c4b5fd">6</text>
+  <text x="110" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">frames sampled</text>
+  <text x="110" y="116" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">per video</text>
+  <text x="110" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#7C3AED">early-stop on NSFW hit</text>
 
-  <!-- Stat card 4: DB latency -->
-  <rect x="580" y="46" width="200" height="130" rx="10" fill="#7C3AED" fill-opacity="0.1" stroke="#7C3AED" stroke-width="1.2"/>
-  <text x="680" y="70" font-family="monospace" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="bold">DB OPERATIONS</text>
-  <text x="680" y="108" font-family="monospace" font-size="28" fill="#c4b5fd" text-anchor="middle" font-weight="bold">&lt;1ms</text>
-  <text x="680" y="126" font-family="monospace" font-size="9" fill="#6b7280" text-anchor="middle">SQLite read/write</text>
-  <rect x="600" y="138" width="160" height="6" rx="3" fill="#1f2937"/>
-  <rect x="600" y="138" width="155" height="6" rx="3" fill="url(#barPurple)"/>
-  <text x="680" y="162" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">Dashboard refresh: 10s interval</text>
+  <!-- Stat card 2 -->
+  <rect x="210" y="50" width="160" height="90" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="290" y="80" text-anchor="middle" font-family="monospace" font-size="24" font-weight="bold" fill="#67e8f9">50%</text>
+  <text x="290" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">confidence</text>
+  <text x="290" y="116" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">threshold (default)</text>
+  <text x="290" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#06B6D4">configurable</text>
+
+  <!-- Stat card 3 -->
+  <rect x="390" y="50" width="160" height="90" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="470" y="80" text-anchor="middle" font-family="monospace" font-size="24" font-weight="bold" fill="#93c5fd">3</text>
+  <text x="470" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">default violation</text>
+  <text x="470" y="116" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">threshold</text>
+  <text x="470" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#2563EB">before auto-ban</text>
+
+  <!-- Stat card 4 -->
+  <rect x="570" y="50" width="200" height="90" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="670" y="80" text-anchor="middle" font-family="monospace" font-size="18" font-weight="bold" fill="#c4b5fd">CUDA / CPU</text>
+  <text x="670" y="100" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">inference backend</text>
+  <text x="670" y="116" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">auto-detected</text>
+  <text x="670" y="132" text-anchor="middle" font-family="monospace" font-size="9" fill="#7C3AED">GPU preferred</text>
+
+  <!-- Bottom note -->
+  <text x="400" y="175" text-anchor="middle" font-family="monospace" font-size="11" fill="#475569">
+    Model: Falconsai/nsfw_image_detection (Vision Transformer, HuggingFace)
+  </text>
+  <text x="400" y="195" text-anchor="middle" font-family="monospace" font-size="11" fill="#475569">
+    Framework: PyTorch ≥ 2.0 · python-telegram-bot ≥ 21.0 · Flask ≥ 3.0
+  </text>
+  <text x="400" y="220" text-anchor="middle" font-family="monospace" font-size="9" fill="#374151">
+    Actual inference speed depends on hardware — GPU makes it dramatically faster
+  </text>
 </svg>
 
 </div>
 
-> **Note:** Inference times are approximate and vary with hardware. The model (`Falconsai/nsfw_image_detection`) is downloaded once and cached by HuggingFace on first run.
+---
+
+## 🔒 Privacy
+
+A.R.T.E.M.I.S.S. processes user media **locally** on your server. No data is sent to any third-party cloud service.
+
+- **Flagged media** is cached locally in `flagged_images/` and `flagged_videos/` for admin review
+- **SFW media** is deleted immediately after classification
+- **Violation records** contain only Telegram user IDs and counts — no names, no usernames
+- The **Falconsai model** runs entirely on your machine after initial download
+- **No analytics, no telemetry, no phoning home**
+
+See [SECURITY.md](SECURITY.md) and [wiki/Privacy.md](wiki/Privacy.md) for the full picture.
 
 ---
 
-## ♿ Accessibility
+## 🗺️ Future Roadmap
 
-The real-time dashboard (`templates/index.html`) implements the following accessibility features:
-
-- **ARIA roles and labels** on all status cards and interactive regions (`role="region"`, `aria-label`)
-- **Keyboard navigation** — the Recent Actions feed is `tabindex="0"` accessible
-- **Semantic loading states** — the loading spinner has `aria-label="Loading"`
-- **High-contrast color choices** — status card gradients maintain ≥ 3:1 contrast ratio
-- **Responsive layout** — Tailwind breakpoints ensure usability on mobile, tablet, and desktop
-
----
-
-## 🔒 Privacy & Security Model
-
-| Concern | Mitigation |
+| Milestone | Feature |
 |---|---|
-| **Bot token exposure** | Loaded exclusively from environment variables; `.env` is git-ignored |
-| **Admin ID exposure** | Same as above — never hard-coded |
-| **Flagged media retention** | Stored locally in configurable directories; excluded from version control |
-| **Dashboard write access** | Dashboard is **read-only** — no write endpoints are exposed |
-| **User data minimalism** | Only `user_id` (integer) is stored — no names, usernames, or message content |
-| **False positive risk** | ML model may err; admin review of cached media is recommended before permanent action |
-| **Telegram ToS compliance** | Bot operates within Telegram Bot API permissions; no scraping or data exfiltration |
+| v0.2 | Text spam detection (NLP classifier) |
+| v0.2 | Configurable ban escalation (mute → kick → ban) |
+| v0.3 | Multi-group support with per-group config |
+| v0.3 | Dashboard authentication (currently open, LAN-only for now) |
+| v0.4 | Sticker / document NSFW detection |
+| v0.5 | Rate limiting and flood protection |
+| v1.0 | Docker Compose deployment |
+
+See [wiki/Roadmap.md](wiki/Roadmap.md) for more detail.
 
 ---
 
-## 🎯 Design Principles
+## ⚖️ License
 
-1. **Zero-trust content** — every piece of media is treated as potentially harmful until proven safe.
-2. **Evidence-first enforcement** — all flagged content is cached before deletion for auditability.
-3. **Configurable thresholds** — no behaviour is hard-coded; operators control all enforcement parameters.
-4. **Graceful degradation** — permission errors (e.g., chat owner ban) are caught and handled without crashing.
-5. **Separation of concerns** — detection, enforcement, persistence, and analytics are cleanly separated.
-6. **Privacy minimalism** — only the data strictly necessary for operation is collected and stored.
-7. **GPU-agnostic** — the system functions on both CPU and CUDA hardware with automatic detection.
+MIT License — see [LICENSE](LICENSE) for the full text.
 
----
-
-## 🗺️ Roadmap
-
-| Phase | Feature | Status |
-|---|---|---|
-| ✅ v1.0 | Image NSFW detection | **Released** |
-| ✅ v1.0 | Video / GIF frame analysis | **Released** |
-| ✅ v1.0 | SQLite violation tracking | **Released** |
-| ✅ v1.0 | Auto-ban + admin notifications | **Released** |
-| ✅ v1.0 | Real-time Flask dashboard | **Released** |
-| 🔄 v1.1 | Text spam detection (NLP) | Planned |
-| 🔄 v1.1 | Escalating ban timers (1m, 5m, permanent) | Planned |
-| 🔄 v1.2 | `/setflagthreshold` admin command | Planned |
-| 🔄 v1.2 | PostgreSQL backend option | Planned |
-| 🔜 v2.0 | Multi-group support with per-group config | Future |
-| 🔜 v2.0 | Webhook mode for production deployments | Future |
-| 🔜 v2.0 | Docker + Docker Compose packaging | Future |
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please read [CONTRIBUTING](wiki/Contributing.md) for full guidelines.
-
----
-
-## ⚠️ Disclaimer
-
-This bot relies on a machine-learning model and may produce false positives or false negatives. Always review flagged content before taking permanent manual action, and use the tool responsibly in compliance with [Telegram's Terms of Service](https://telegram.org/tos).
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+Copyright © 2025 Kaelith69
 
 ---
 
 <div align="center">
-<strong>A.R.T.E.M.I.S.S.</strong> — Keeping your Telegram groups clean and safe 🛡️
-<br/><br/>
-<sub>Built with ❤️ by <a href="https://github.com/Kaelith69">Kaelith69</a></sub>
+
+*Made with too much caffeine and a deep moral opposition to unsolicited NSFW content in group chats.*
+
 </div>
