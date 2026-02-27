@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" width="820" height="440">
+  <defs>
+    <linearGradient id="dfBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#080814"/>
+    </linearGradient>
+    <marker id="dfArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#06B6D4"/>
+    </marker>
+    <marker id="dfArrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f87171"/>
+    </marker>
+    <marker id="dfArrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4ade80"/>
+    </marker>
+    <marker id="dfArrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2563EB"/>
+    </marker>
+  </defs>
+
+  <rect width="820" height="440" fill="url(#dfBg)" rx="12"/>
+  <rect x="0" y="0" width="820" height="4" fill="#06B6D4"/>
+
+  <text x="410" y="28" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="15" font-weight="bold" fill="#e2e8f0">Data Flow — Media Moderation Pipeline</text>
+
+  <!-- ─── TOP ROW: linear pipeline ─── -->
+
+  <!-- Step 1: Media Received -->
+  <rect x="22" y="50" width="118" height="52" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="81" y="71" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#c4b5fd">① Received</text>
+  <text x="81" y="89" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">photo/video/GIF</text>
+
+  <!-- → -->
+  <line x1="140" y1="76" x2="168" y2="76" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+
+  <!-- Step 2: Download -->
+  <rect x="168" y="50" width="118" height="52" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="227" y="71" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#67e8f9">② Download</text>
+  <text x="227" y="89" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">temp_&lt;uid&gt;.{jpg,mp4,gif}</text>
+
+  <!-- → -->
+  <line x1="286" y1="76" x2="316" y2="76" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+
+  <!-- Branch: Image vs Video -->
+  <!-- Diamond decision -->
+  <polygon points="352,50 394,76 352,102 310,76" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="352" y="73" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#93c5fd">media</text>
+  <text x="352" y="86" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#93c5fd">type?</text>
+
+  <!-- Image path (up) -->
+  <line x1="352" y1="50" x2="352" y2="25" stroke="#7C3AED" stroke-width="1.2" marker-end="url(#dfArrow)"/>
+  <text x="360" y="40" font-family="monospace" font-size="8" fill="#7C3AED">image</text>
+
+  <!-- Video/GIF path (right) -->
+  <line x1="394" y1="76" x2="440" y2="76" stroke="#2563EB" stroke-width="1.2" marker-end="url(#dfArrowBlue)"/>
+  <text x="417" y="70" text-anchor="middle" font-family="monospace" font-size="8" fill="#2563EB">video/gif</text>
+
+  <!-- Image classifier box (above) -->
+  <rect x="276" y="5" width="152" height="30" rx="6" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.2"/>
+  <text x="352" y="23" text-anchor="middle" font-family="monospace" font-size="9" fill="#c4b5fd">nsfw_detector pipeline · ViT</text>
+
+  <!-- Video analyzer box (right of diamond) -->
+  <rect x="440" y="50" width="155" height="52" rx="8" fill="#0a1f2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="517" y="70" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#93c5fd">VideoContentAnalyzer</text>
+  <text x="517" y="87" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#94a3b8">sample 6 frames · stop-on-hit</text>
+
+  <!-- Both paths merge into Step 4 -->
+  <!-- Image path down from classifier -->
+  <line x1="352" y1="35" x2="352" y2="50" stroke="#7C3AED" stroke-width="1.2"/>
+  <!-- Arrow from image classifier result down to decision -->
+  <line x1="430" y1="20" x2="650" y2="20" stroke="#06B6D4" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <line x1="650" y1="20" x2="650" y2="140" stroke="#06B6D4" stroke-width="1.2" marker-end="url(#dfArrow)"/>
+
+  <!-- Arrow from video analyzer to decision -->
+  <line x1="595" y1="76" x2="640" y2="76" stroke="#2563EB" stroke-width="1.2"/>
+  <line x1="640" y1="76" x2="640" y2="140" stroke="#2563EB" stroke-width="1.2" marker-end="url(#dfArrowBlue)"/>
+
+  <!-- Step 4: Decision box -->
+  <rect x="578" y="140" width="200" height="55" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="678" y="163" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#93c5fd">③ Decision</text>
+  <text x="678" y="183" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#94a3b8">label=nsfw AND conf ≥ 0.5?</text>
+
+  <!-- NSFW branch (down) -->
+  <line x1="678" y1="195" x2="678" y2="240" stroke="#f87171" stroke-width="1.5" marker-end="url(#dfArrowRed)"/>
+  <text x="688" y="222" font-family="monospace" font-size="9" fill="#f87171">YES · NSFW</text>
+
+  <!-- SFW branch (right) -->
+  <line x1="778" y1="167" x2="800" y2="167" stroke="#4ade80" stroke-width="1.5"/>
+  <line x1="800" y1="167" x2="800" y2="240" stroke="#4ade80" stroke-width="1.5" marker-end="url(#dfArrowGreen)"/>
+  <text x="793" y="215" font-family="monospace" font-size="9" fill="#4ade80">NO</text>
+  <text x="793" y="227" font-family="monospace" font-size="9" fill="#4ade80">SFW</text>
+
+  <!-- ─── NSFW ACTIONS BOX ─── -->
+  <rect x="560" y="240" width="240" height="158" rx="8" fill="#1f0a0a" stroke="#f87171" stroke-width="1.5"/>
+  <text x="680" y="262" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#f87171">NSFW Action Chain</text>
+  <text x="680" y="281" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">① Delete message from group</text>
+  <text x="680" y="297" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">② Warn user: violation N / threshold</text>
+  <text x="680" y="313" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">③ Cache media to flagged_* dir</text>
+  <text x="680" y="329" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">④ DM admin: alert + cached media</text>
+  <text x="680" y="345" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">⑤ Increment violation count in DB</text>
+  <text x="680" y="367" text-anchor="middle" font-family="monospace" font-size="9" fill="#fca5a5">⑥ if count ≥ FLAG_THRESHOLD:</text>
+  <text x="680" y="383" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#ef4444">    🔨 ban_chat_member()</text>
+
+  <!-- ─── SFW ACTION BOX ─── -->
+  <rect x="762" y="240" width="48" height="55" rx="7" fill="#0a1f0a" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="786" y="262" text-anchor="middle" font-family="monospace" font-size="9" font-weight="bold" fill="#4ade80">SFW</text>
+  <text x="786" y="278" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#86efac">delete</text>
+  <text x="786" y="291" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#86efac">temp</text>
+
+  <!-- DB write arrow from NSFW box -->
+  <line x1="560" y1="340" x2="460" y2="340" stroke="#2563EB" stroke-width="1.5" marker-end="url(#dfArrowBlue)"/>
+
+  <!-- SQLite Write box -->
+  <rect x="280" y="312" width="180" height="55" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="370" y="336" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#93c5fd">SQLite Write</text>
+  <text x="370" y="354" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#64748b">violations · actions · stats · contents</text>
+
+  <!-- Dashboard refresh arrow -->
+  <line x1="370" y1="367" x2="370" y2="397" stroke="#06B6D4" stroke-width="1.5" marker-end="url(#dfArrow)"/>
+
+  <!-- Dashboard box -->
+  <rect x="256" y="397" width="228" height="36" rx="7" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="370" y="415" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#67e8f9">Dashboard Socket.IO Push</text>
+  <text x="370" y="428" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#94a3b8">live stats → admin browser (every 10s)</text>
+
+  <!-- Media type legend -->
+  <rect x="22" y="140" width="220" height="90" rx="8" fill="#111827" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="132" y="160" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#94a3b8">Input Types</text>
+  <text x="132" y="180" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">▸ Photo → direct ViT pipeline</text>
+  <text x="132" y="197" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">▸ Video → 6-frame sampler</text>
+  <text x="132" y="214" text-anchor="middle" font-family="monospace" font-size="9" fill="#64748b">▸ GIF/Animation → frame sampler</text>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 260" width="820" height="260">
+  <defs>
+    <linearGradient id="statsBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#080814"/>
+    </linearGradient>
+    <linearGradient id="statsAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="820" height="260" fill="url(#statsBg)" rx="12"/>
+  <rect x="0" y="0" width="820" height="4" fill="url(#statsAccent)"/>
+
+  <text x="410" y="32" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="14" font-weight="bold" fill="#e2e8f0">Runtime Characteristics &amp; Project Metrics</text>
+
+  <!-- Card 1: Frames sampled -->
+  <rect x="24" y="52" width="148" height="100" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="98" y="86" text-anchor="middle" font-family="'Courier New', monospace" font-size="30" font-weight="bold" fill="#c4b5fd">6</text>
+  <text x="98" y="106" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">frames sampled</text>
+  <text x="98" y="122" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#64748b">per video/GIF</text>
+  <text x="98" y="140" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#7C3AED">early-stop on NSFW</text>
+
+  <!-- Card 2: Confidence threshold -->
+  <rect x="184" y="52" width="148" height="100" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="258" y="86" text-anchor="middle" font-family="'Courier New', monospace" font-size="30" font-weight="bold" fill="#67e8f9">50%</text>
+  <text x="258" y="106" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">confidence cutoff</text>
+  <text x="258" y="122" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#64748b">default threshold</text>
+  <text x="258" y="140" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#06B6D4">configurable via .env</text>
+
+  <!-- Card 3: Auto-ban threshold -->
+  <rect x="344" y="52" width="148" height="100" rx="8" fill="#1a1a2e" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="418" y="86" text-anchor="middle" font-family="'Courier New', monospace" font-size="30" font-weight="bold" fill="#93c5fd">3</text>
+  <text x="418" y="106" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">violation threshold</text>
+  <text x="418" y="122" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#64748b">triggers auto-ban</text>
+  <text x="418" y="140" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#2563EB">FLAG_THRESHOLD env</text>
+
+  <!-- Card 4: Model size -->
+  <rect x="504" y="52" width="148" height="100" rx="8" fill="#1e0a3c" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="578" y="82" text-anchor="middle" font-family="'Courier New', monospace" font-size="22" font-weight="bold" fill="#c4b5fd">~350 MB</text>
+  <text x="578" y="102" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">model download</text>
+  <text x="578" y="118" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#64748b">first run only</text>
+  <text x="578" y="136" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#7C3AED">cached locally after</text>
+
+  <!-- Card 5: Compute -->
+  <rect x="664" y="52" width="132" height="100" rx="8" fill="#0a1f2e" stroke="#06B6D4" stroke-width="1.5"/>
+  <text x="730" y="80" text-anchor="middle" font-family="'Courier New', monospace" font-size="16" font-weight="bold" fill="#67e8f9">CUDA/CPU</text>
+  <text x="730" y="98" text-anchor="middle" font-family="monospace" font-size="10" fill="#94a3b8">inference backend</text>
+  <text x="730" y="114" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#64748b">auto-detected</text>
+  <text x="730" y="132" text-anchor="middle" font-family="monospace" font-size="8.5" fill="#06B6D4">GPU preferred</text>
+  <text x="730" y="146" text-anchor="middle" font-family="monospace" font-size="8" fill="#475569">CPU ≈ 1-3s / image</text>
+
+  <!-- Bottom stats row -->
+  <rect x="24" y="170" width="770" height="1" fill="#1e293b"/>
+
+  <text x="80"  y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Python</text>
+  <text x="80"  y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#c4b5fd">≥ 3.10</text>
+
+  <text x="200" y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">PyTorch</text>
+  <text x="200" y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#93c5fd">≥ 2.0</text>
+
+  <text x="340" y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">python-telegram-bot</text>
+  <text x="340" y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#67e8f9">≥ 21.0</text>
+
+  <text x="480" y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Flask</text>
+  <text x="480" y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#c4b5fd">≥ 3.0</text>
+
+  <text x="605" y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Source files</text>
+  <text x="605" y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#93c5fd">4 core</text>
+
+  <text x="730" y="195" text-anchor="middle" font-family="monospace" font-size="10" fill="#64748b">Dependencies</text>
+  <text x="730" y="210" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#67e8f9">8 packages</text>
+
+  <text x="410" y="244" text-anchor="middle" font-family="monospace" font-size="9" fill="#374151">
+    Model: Falconsai/nsfw_image_detection (Vision Transformer) · HuggingFace Hub · MIT License
+  </text>
+</svg>
